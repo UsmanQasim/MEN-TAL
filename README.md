@@ -4,13 +4,22 @@ MEN-TAL is a quiet, mobile-friendly wellbeing web app for men going through a ha
 
 ## Run it
 
-This is a static web app with no build step, accounts, paid APIs, or third-party runtime dependencies. Open `index.html` in a browser, or serve the project from a local/static web server. On iPhone or Android, use the browser's **Add to Home Screen** / **Install app** action to use it like an app, without app-store fees or a separate mobile codebase. Install and offline caching require HTTPS or localhost.
+The web experience now lives in `web/`: `web/index.html` is the marketing page, `web/app/` is the installable wellbeing web app, and the privacy and terms pages are at `web/privacy.html` and `web/terms.html`. The repository-root `index.html` is a small redirect for convenience. For static hosting, set the publish/output directory to `web/`; that makes the marketing page the domain home and keeps app and legal URLs together. You can also serve the repository root, which redirects visitors to `/web/`.
 
-The provided brand artwork has been cut out to transparent PNG files: `logo.png` is the complete lockup, `logo-mark.png` is the heart mark used in the app, and `icon-192.png` / `icon-512.png` are install icons.
+The web app has no build step, user accounts, paid APIs, or third-party runtime libraries. On iPhone or Android, use the browser's **Add to Home Screen** / **Install app** action. Install and offline caching require HTTPS or localhost. App artwork is in `web/app/assets/`; the supplied source image is retained in `web/assets/`.
+
+### Before putting the website online
+
+- Publish from `web/` over HTTPS.
+- Replace the clearly marked policy/contact notices in `web/privacy.html` and `web/terms.html` with the operator's legal name, jurisdiction/address, and working privacy contact. Confirm the copy matches the actual hosting provider and any future integrations.
+- Add the real production-domain canonical URLs, `og:url`, absolute social-preview image URLs, and a sitemap with that domain after choosing it. No production domain has been supplied, so none is invented in the page metadata.
+- Review the policies after choosing a host: hosts can process IP addresses in security/access logs even though the app itself has no analytics.
+- The app uses local storage for its on-device features, not cookies. It has no analytics or advertising cookies; a cookie-consent banner should not be added unless the deployment adds cookies or other consent-requiring tracking.
+- Review accessibility, privacy disclosures, mental-health claims, crisis links, and any local legal obligations before launch. Marketing text is not a promise of clinical benefit or Google Play approval.
 
 ## Android app
 
-The Expo app lives in `mobile/`; the static website remains at the repository root. The app works offline for its core exercises and stores check-ins, daily-plan progress, and journal notes on the device. It has no account or backend.
+The Expo app lives in `mobile/`; the static website is organized in `web/`. The app works offline for its core exercises and stores check-ins, daily-plan progress, and journal notes on the device. It has no account or backend.
 
 From the `mobile` directory:
 
@@ -34,13 +43,13 @@ You need your own Expo account and Google Play developer account; neither is inc
 
 The EAS production profile increments the Android version code remotely. The `submit.production` profile is only a starting configuration; Play Console credentials and first-release setup are still required. An Expo account/project ID and a package name you control have not been configured in this repository.
 
-## Privacy
+## Privacy and platform disclosures
 
-On Android and iOS, check-ins, daily-plan progress, and journal notes are stored on-device using the platform's protected storage (Android Keystore or iOS Keychain); MEN-TAL has no account or app backend. Secure storage is not a promise that data is impossible to access: protect your device, and note that iOS Keychain data can persist after uninstall. On the web, data stays in that browser's local storage and may be visible to someone with access to the browser profile. Clear the journal or browser storage to remove it. Avoid entering sensitive notes on a shared device.
+The public-facing draft policy is [web/privacy.html](web/privacy.html), with the care and usage boundaries in [web/terms.html](web/terms.html). It explains that browser entries use local storage and mobile entries use Android Keystore/iOS Keychain-backed SecureStore. Secure storage is not a promise that data is impossible to access; iOS Keychain values may persist after uninstall. Before release, the owner must fill in real operator identity/contact information and verify the statements against the exact hosting and app configuration.
 
-The optional support-country lookup sends the device's IP address directly to ipwho.is when the person taps **Find my country**. The app does not save the result; helpline directories and any configured creator payment page are separate third-party services opened by choice. The core check-ins, journal, and wellbeing exercises do not require a network connection.
+The optional support-country lookup sends the visitor's IP address directly to ipwho.is when they choose **Find my country**. The app does not save the result; helpline directories and any configured creator payment page are separate third-party services opened by choice. Web hosting may record ordinary connection logs. The core check-ins, journal, and wellbeing exercises do not require a network connection.
 
-Before a store release, publish a privacy policy that describes these practices and verify Expo/Google Play's then-current disclosures and data-safety requirements. Do not promise a level of security or privacy beyond what the platform and your release configuration provide.
+Before a store release, publish the completed privacy policy at a stable public URL and link that same URL in Google Play Console and within the app. Complete the current Health apps declaration, Data safety form, target-audience and content forms, and any other Play disclosures truthfully for the shipped app and its SDKs. This repository cannot guarantee policy approval. Do not promise a level of security or privacy beyond what the platform and release configuration provide.
 
 ## Care and crisis support
 
@@ -63,9 +72,9 @@ The app's low-pressure choices reflect public mental wellbeing guidance: connect
 
 1. Create a creator page with a payment service such as Ko-fi or Buy Me a Coffee, and set up its payout details directly with that service.
 2. Copy your public HTTPS creator-page URL.
-3. In `site-config.js`, set `donationUrl` to that URL (for example, `donationUrl: 'https://ko-fi.com/yourpage'`).
+3. In `web/app/site-config.js`, set `donationUrl` to that URL (for example, `donationUrl: 'https://ko-fi.com/yourpage'`).
 4. Deploy the updated static site and make a small test from the payment provider's preview/test tools if available.
 
 The mobile app has a separate, blank `donationUrl` in `mobile/src/config.ts`; it also collects nothing until you set your own public creator-page URL. The support page displays the destination's domain. A supporter pays the creator account connected to that page, under the payment provider's own terms and fees; MEN-TAL does not handle payment details. Never put secret API keys or payout credentials in either app. **Before enabling a payment link in an Android app distributed through Google Play, check the current Play payments policy and permitted programs for your app and region**; the rules can restrict external payment links. Check provider fees and local tax requirements too. Keep crisis and essential wellbeing resources free, and make giving entirely optional.
 
-The app is intentionally static and free to host on a static web host. It has no subscriptions, advertising, or data-dependent AI features. Never make clinical or safety claims without qualified review.
+The web app is intentionally static and free to host on a static web host. It has no subscriptions, advertising, or data-dependent AI features. Never make clinical or safety claims without qualified review.
