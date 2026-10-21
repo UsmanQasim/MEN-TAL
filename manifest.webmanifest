@@ -1,0 +1,29 @@
+{
+  "name": "MEN-TAL — a little steadier, together",
+  "short_name": "MEN-TAL",
+  "description": "A private, practical place to look after yourself, one small step at a time.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#f7f5ef",
+  "shortcuts": [
+    {
+      "name": "Find support",
+      "url": "./#support",
+      "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Take a breather",
+      "url": "./#reset",
+      "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ],
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
