@@ -1,4 +1,4 @@
-const CACHE_NAME = 'men-tal-shell-v6';
+const CACHE_NAME = 'men-tal-shell-v8';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,7 +6,10 @@ const APP_SHELL = [
   './app.js',
   './site-config.js',
   './manifest.webmanifest',
-  './icon.svg',
+  './assets/logo-mark.png',
+  './assets/logo.png',
+  './assets/icon-192.png',
+  './assets/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {

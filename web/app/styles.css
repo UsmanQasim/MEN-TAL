@@ -30,7 +30,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .app-shell { min-height: 100vh; }
 .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 3; display: flex; flex-direction: column; width: 254px; padding: 29px 21px 18px; background: #fcfbf7; border-right: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 11px; margin: 0 0 51px 4px; text-decoration: none; }
-.brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 13px 13px 13px 4px; background: var(--green); color: #f9f6ec; font: 600 28px/1 var(--serif); }
+.brand-mark { display: block; flex: 0 0 38px; width: 38px; height: 38px; object-fit: contain; }
 .brand-name { color: var(--ink); font: 800 20px/1 'Manrope', sans-serif; letter-spacing: -1.1px; }
 .brand-period, .heading-period { color: var(--coral); }
 .brand-name small { display: block; margin-top: 5px; color: #8c938d; font: 400 10px/1.2 'DM Sans', sans-serif; letter-spacing: .02em; }
@@ -142,6 +142,10 @@ h1 { margin-bottom: 12px; color: #293a32; font: 500 clamp(40px, 4.5vw, 55px)/1.0
 .page-footer { display: flex; justify-content: space-between; gap: 12px; padding: 20px 0 10px; color: #999d94; font-size: 9px; }
 .page-footer a { color: #6c7d6d; text-decoration: none; }
 .page-footer a:hover, .support-inline-link:hover { text-decoration: underline; }
+.legal-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 16px 0 28px; border-top: 1px solid var(--line); color: #858b83; font-size: 10px; }
+.legal-footer nav { display: flex; flex-wrap: wrap; gap: 16px; }
+.legal-footer a { color: #536c5b; text-decoration: none; }
+.legal-footer a:hover { text-decoration: underline; }
 
 .secondary-section { padding-top: 52px; }
 .secondary-section > h1 { margin-bottom: 12px; }
@@ -236,7 +240,7 @@ h1 { margin-bottom: 12px; color: #293a32; font: 500 clamp(40px, 4.5vw, 55px)/1.0
   .main-content { width: 100%; margin: 0; padding: 0 22px 84px; }
   .topbar { height: 60px; }
   .mobile-brand { display: flex; align-items: center; gap: 8px; color: var(--ink); font: 700 15px 'Manrope', sans-serif; letter-spacing: -.5px; }
-  .mobile-brand .brand-mark { width: 29px; height: 29px; border-radius: 10px 10px 10px 3px; font-size: 21px; }
+  .mobile-brand .brand-mark { flex-basis: 29px; width: 29px; height: 29px; }
   .topbar-date { display: none; }
   .topbar-actions { margin-left: auto; }
   .mobile-nav { position: fixed; z-index: 4; right: 0; bottom: 0; left: 0; display: flex; justify-content: space-around; padding: 8px 10px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #fcfbf7f5; backdrop-filter: blur(12px); }
