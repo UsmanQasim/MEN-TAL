@@ -1,12 +1,12 @@
 # MEN-TAL
 
-MEN-TAL is a quiet, mobile-friendly wellbeing web app for men going through a hard time. It offers a daily mood check-in, manageable self-care ideas, a gentle breathing exercise, a private on-device journal, and links to human support.
+MEN-TAL is a quiet, mobile-friendly wellbeing app for men going through a hard time. It offers a daily mood check-in, manageable self-care ideas, a gentle breathing exercise, a private on-device journal, an optional personal rough-day plan, and links to human support.
 
 ## Run it
 
 The web experience now lives in `web/`: `web/index.html` is the marketing page, `web/app/` is the installable wellbeing web app, and the privacy and terms pages are at `web/privacy.html` and `web/terms.html`. The repository-root `index.html` is a small redirect for convenience. For static hosting, set the publish/output directory to `web/`; that makes the marketing page the domain home and keeps app and legal URLs together. You can also serve the repository root, which redirects visitors to `/web/`.
 
-The web app has no build step, user accounts, paid APIs, or third-party runtime libraries. On iPhone or Android, use the browser's **Add to Home Screen** / **Install app** action. Install and offline caching require HTTPS or localhost. App artwork is in `web/app/assets/`; the supplied source image is retained in `web/assets/`.
+The web app has no build step, user accounts, paid APIs, or third-party runtime libraries. Its optional rough-day plan is stored in browser local storage, like its other saved entries. On iPhone or Android, use the browser's **Add to Home Screen** / **Install app** action. Install and offline caching require HTTPS or localhost. App artwork is in `web/app/assets/`; the supplied source image is retained in `web/assets/`.
 
 ### Before putting the website online
 
@@ -19,7 +19,7 @@ The web app has no build step, user accounts, paid APIs, or third-party runtime 
 
 ## Android app
 
-The Expo app lives in `mobile/`; the static website is organized in `web/`. The app works offline for its core exercises and stores check-ins, daily-plan progress, and journal notes on the device. It has no account or backend.
+The Expo app lives in `mobile/`; the static website is organized in `web/`. The app works offline for its core exercises and stores check-ins, daily-plan progress, journal notes, and the optional rough-day plan on the device. It has no account or backend.
 
 From the `mobile` directory:
 
@@ -53,16 +53,31 @@ Before a store release, publish the completed privacy policy at a stable public 
 
 ## Care and crisis support
 
-MEN-TAL offers general wellbeing ideas, not diagnosis, treatment, or crisis care. Self-care is not a replacement for support from a qualified health professional. In immediate danger, contact your local emergency number or go to the nearest emergency department. To find a crisis or emotional support line by country, visit [Find A Helpline](https://findahelpline.com/).
+MEN-TAL offers general wellbeing ideas, not diagnosis, treatment, or crisis care. The optional rough-day plan is a self-authored reminder, not a professional safety plan; it is not monitored and cannot contact anyone. Self-care is not a replacement for support from a qualified health professional. In immediate danger, contact your local emergency number or go to the nearest emergency department. To find a crisis or emotional support line by country, visit [Find A Helpline](https://findahelpline.com/).
 
 The support page can estimate a country from the visitor's IP address using ipwho.is, but only after the visitor chooses **Find my country**. This is an approximate country-level lookup, not GPS. The visitor's IP address is sent directly to ipwho.is for that request; the app requests only the country and two-letter country code and does not save the result. If the lookup fails or the visitor declines, they can choose their country on Find A Helpline. [ipwho.is documents](https://ipwhois.io/documentation) a free endpoint limited to 1,000 requests per day per domain; confirm the provider's current terms before launch.
 
 The app's low-pressure choices reflect public mental wellbeing guidance: connection, manageable physical activity, small achievable steps, attention to the present, and everyday basics. Everyone's circumstances are different, and no one action is a cure.
 
+## Product improvement priorities
+
+The new rough-day plan is an optional, private place to note personal warning signs, a manageable next step, someone to contact, and words to use when reaching out. It is user-written and stored on-device; it does not monitor risk or replace a safety plan made with a qualified professional.
+
+Further improvements should make practical support easier without turning MEN-TAL into a pseudo-clinical product:
+
+1. Co-design with men who have lived experience, including people facing financial strain, isolation, disability, and barriers to care. Test language and navigation with them before adding more features.
+2. Offer short, optional pathways around everyday pressures such as sleep, food, work or money, loneliness, and personal care. Let people skip, change, or dismiss suggestions without streaks or guilt.
+3. Make human support easy to reach from every screen, and review helpline coverage and crisis wording with qualified local partners before launch.
+4. Keep core tools offline and data-minimal. Any future reminders should be opt-in, discreet, and easy to turn off; avoid public posting or unmoderated peer forums unless there is a real moderation and safeguarding operation.
+5. Evaluate accessibility, trust, and whether people can find useful support—not claims that the app treats depression or prevents suicide. Publish a clear route to feedback and correction.
+
+These are product-design priorities, not treatment recommendations. WHO describes mental health as shaped by personal, social, and structural factors and emphasizes accessible community support. NHS guidance highlights connection, activity, learning, helping others, and present-moment awareness. Forum anecdotes can suggest usability questions, but cannot establish clinical effectiveness. Reddit blocked the searches attempted during this update, so no Reddit themes are claimed here.
+
 ## Evidence and further reading
 
 - [NHS: 5 steps to mental wellbeing](https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/five-steps-to-mental-wellbeing/) — connecting with people, moving, learning, giving, and paying attention to the present.
 - [NHS Every Mind Matters: mental wellbeing tips](https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/) — practical ideas and routes to further support.
+- [NHS: 5 steps to mental wellbeing](https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/five-steps-to-mental-wellbeing/) — connection, physical activity, learning, giving, and noticing the present.
 - [World Health Organization: Mental health — strengthening our response](https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response) — mental health is shaped by individual, social, and environmental factors; community support and affordable care matter.
 - [Find A Helpline](https://findahelpline.com/) — a directory of crisis and emotional support services across countries.
 

@@ -9,6 +9,7 @@ import { colors } from '../src/theme';
 const tabIcons: Record<string, string> = {
   index: '⌂',
   pause: '◌',
+  plan: '✳',
   journal: '▤',
   support: '♡',
 };
@@ -37,6 +38,7 @@ export default function RootLayout() {
         >
           <Tabs.Screen name="index" options={{ title: 'Today' }} />
           <Tabs.Screen name="pause" options={{ title: 'Pause' }} />
+          <Tabs.Screen name="plan" options={{ title: 'My plan' }} />
           <Tabs.Screen name="journal" options={{ title: 'Journal' }} />
           <Tabs.Screen name="support" options={{ title: 'Support' }} />
         </Tabs>

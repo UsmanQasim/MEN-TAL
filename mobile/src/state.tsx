@@ -4,6 +4,12 @@ import { Platform } from 'react-native';
 
 export type Mood = 'rough' | 'low' | 'okay' | 'good';
 export type DailyTask = 'connect' | 'move' | 'rest';
+export type SteadyPlan = {
+  signs: string;
+  helpful: string;
+  person: string;
+  message: string;
+};
 
 export type StoredData = {
   checkIn: { date: string; mood: Mood } | null;
@@ -13,18 +19,23 @@ export type StoredData = {
 
 type AppState = {
   data: StoredData;
+  steadyPlan: SteadyPlan;
   ready: boolean;
   storageAvailable: boolean;
   notice: string | null;
   checkIn: (mood: Mood) => void;
   toggleTask: (task: DailyTask) => void;
   saveJournal: (journal: string) => Promise<boolean>;
+  saveSteadyPlan: (plan: SteadyPlan) => Promise<boolean>;
   clearNotice: () => void;
 };
 
 const STORAGE_KEY = 'men-tal-mobile-v1';
+const STEADY_PLAN_KEY = 'men-tal-steady-plan-v1';
 export const MAX_JOURNAL_BYTES = 1500;
 const MAX_STORAGE_BYTES = 1800;
+export const MAX_STEADY_PLAN_BYTES = 1800;
+export const MAX_STEADY_PLAN_FIELD_LENGTH = 100;
 export const todayKey = () => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -35,6 +46,7 @@ const initialData: StoredData = {
   daily: { date: todayKey(), tasks: { connect: false, move: false, rest: false } },
   journal: '',
 };
+const emptySteadyPlan: SteadyPlan = { signs: '', helpful: '', person: '', message: '' };
 
 const StateContext = createContext<AppState | null>(null);
 const moods: Mood[] = ['rough', 'low', 'okay', 'good'];
@@ -78,6 +90,12 @@ function readData() {
     : SecureStore.getItemAsync(STORAGE_KEY);
 }
 
+function readSteadyPlan() {
+  return Platform.OS === 'web'
+    ? Promise.resolve(localStorage.getItem(STEADY_PLAN_KEY))
+    : SecureStore.getItemAsync(STEADY_PLAN_KEY);
+}
+
 function writeData(value: string) {
   if (Platform.OS === 'web') {
     localStorage.setItem(STORAGE_KEY, value);
@@ -86,8 +104,31 @@ function writeData(value: string) {
   return SecureStore.setItemAsync(STORAGE_KEY, value);
 }
 
+function writeSteadyPlan(value: string) {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(STEADY_PLAN_KEY, value);
+    return Promise.resolve();
+  }
+  return SecureStore.setItemAsync(STEADY_PLAN_KEY, value);
+}
+
+function isSteadyPlan(value: unknown): value is SteadyPlan {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<SteadyPlan>;
+  return ['signs', 'helpful', 'person', 'message'].every((field) => {
+    const text = candidate[field as keyof SteadyPlan];
+    return typeof text === 'string' && text.length <= MAX_STEADY_PLAN_FIELD_LENGTH;
+  });
+}
+
+export function steadyPlanFitsStorage(plan: SteadyPlan) {
+  return isSteadyPlan(plan)
+    && utf8Length(JSON.stringify(plan)) <= MAX_STEADY_PLAN_BYTES;
+}
+
 export function AppStateProvider({ children }: React.PropsWithChildren) {
   const [data, setData] = useState<StoredData>(initialData);
+  const [steadyPlan, setSteadyPlan] = useState<SteadyPlan>(emptySteadyPlan);
   const [ready, setReady] = useState(false);
   const [storageAvailable, setStorageAvailable] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -96,8 +137,8 @@ export function AppStateProvider({ children }: React.PropsWithChildren) {
 
   useEffect(() => {
     let active = true;
-    readData()
-      .then((stored) => {
+    Promise.all([readData(), readSteadyPlan()])
+      .then(([stored, savedPlan]) => {
         if (!active) return;
         if (stored) {
           const parsed: unknown = JSON.parse(stored);
@@ -114,6 +155,13 @@ export function AppStateProvider({ children }: React.PropsWithChildren) {
           };
           dataRef.current = nextData;
           setData(nextData);
+        }
+        if (savedPlan) {
+          const parsedPlan: unknown = JSON.parse(savedPlan);
+          if (!isSteadyPlan(parsedPlan) || !steadyPlanFitsStorage(parsedPlan)) {
+            throw new Error('Saved rough-day plan could not be validated.');
+          }
+          setSteadyPlan(parsedPlan);
         }
         setStorageAvailable(true);
       })
@@ -171,9 +219,25 @@ export function AppStateProvider({ children }: React.PropsWithChildren) {
     return updateData((current) => ({ ...current, journal }));
   }, [updateData]);
 
+  const saveSteadyPlan = useCallback((plan: SteadyPlan) => {
+    if (!steadyPlanFitsStorage(plan)) {
+      setNotice('Your plan is too large for protected device storage. Shorten each entry and try again.');
+      return Promise.resolve(false);
+    }
+    if (!storageAvailable) return Promise.resolve(false);
+    const serialized = JSON.stringify(plan);
+    setSteadyPlan(plan);
+    const pendingWrite = writeQueue.current.then(() => writeSteadyPlan(serialized));
+    writeQueue.current = pendingWrite.catch((error: unknown) => {
+      console.error('MEN-TAL could not save the steadying plan on this device.', error);
+      setNotice('This device could not save your plan just now. Check available storage and try again.');
+    });
+    return pendingWrite.then(() => true, () => false);
+  }, [storageAvailable]);
+
   const clearNotice = useCallback(() => setNotice(null), []);
-  const value = useMemo(() => ({ data, ready, storageAvailable, notice, checkIn, toggleTask, saveJournal, clearNotice }), [
-    data, ready, storageAvailable, notice, checkIn, toggleTask, saveJournal, clearNotice,
+  const value = useMemo(() => ({ data, steadyPlan, ready, storageAvailable, notice, checkIn, toggleTask, saveJournal, saveSteadyPlan, clearNotice }), [
+    data, steadyPlan, ready, storageAvailable, notice, checkIn, toggleTask, saveJournal, saveSteadyPlan, clearNotice,
   ]);
 
   return <StateContext.Provider value={value}>{children}</StateContext.Provider>;

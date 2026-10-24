@@ -2,6 +2,7 @@ const STORAGE_KEYS = {
   checkin: 'mental-checkin-v1',
   daily: 'mental-daily-v1',
   journal: 'mental-journal-v1',
+  steadyPlan: 'mental-steady-plan-v1',
 };
 
 const dateKey = (() => {
@@ -158,6 +159,42 @@ function initializeJournal() {
   });
   entry.addEventListener('input', () => {
     status.textContent = 'Local to this browser. Remember to save if you want to keep it.';
+  });
+}
+
+function initializeSteadyPlan() {
+  const fields = ['signs', 'helpful', 'person', 'message'];
+  const plan = readStored(STORAGE_KEYS.steadyPlan, { signs: '', helpful: '', person: '', message: '' });
+  const valid = plan && fields.every((field) => typeof plan[field] === 'string' && plan[field].length <= 100);
+  const status = document.querySelector('#steady-plan-status');
+  const inputs = Object.fromEntries(fields.map((field) => [field, document.querySelector(`#steady-${field}`)]));
+
+  if (valid) {
+    fields.forEach((field) => { inputs[field].value = plan[field]; });
+  } else {
+    console.error('The saved steadying plan could not be validated.');
+    status.textContent = 'Saved plan could not be read. You can clear it and start again.';
+  }
+
+  document.querySelector('#save-steady-plan').addEventListener('click', () => {
+    const nextPlan = Object.fromEntries(fields.map((field) => [field, inputs[field].value]));
+    if (saveStored(STORAGE_KEYS.steadyPlan, nextPlan)) {
+      status.textContent = 'Your plan is saved in this browser only. It is not uploaded.';
+      showToast('Your rough-day plan is saved on this device.');
+    }
+  });
+  document.querySelector('#clear-steady-plan').addEventListener('click', () => {
+    const emptyPlan = { signs: '', helpful: '', person: '', message: '' };
+    if (saveStored(STORAGE_KEYS.steadyPlan, emptyPlan)) {
+      fields.forEach((field) => { inputs[field].value = ''; });
+      status.textContent = 'Your plan has been cleared from this browser.';
+      showToast('Your plan has been cleared.');
+    }
+  });
+  fields.forEach((field) => {
+    inputs[field].addEventListener('input', () => {
+      status.textContent = 'Only in this browser. Save when you’re ready.';
+    });
   });
 }
 
@@ -344,6 +381,7 @@ initializeNavigation();
 initializeCheckin();
 initializeDailyPlan();
 initializeJournal();
+initializeSteadyPlan();
 initializeBreathing();
 initializeLocationSupport();
 initializeContributions();

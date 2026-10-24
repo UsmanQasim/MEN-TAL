@@ -139,6 +139,12 @@ h1 { margin-bottom: 12px; color: #293a32; font: 500 clamp(40px, 4.5vw, 55px)/1.0
 .quote-rule { width: 27px; height: 1px; background: #aab6a6; }
 .quote-card p { margin: 10px 0 0; color: #7b8779; font-size: 9px; }
 .quote-leaf { position: absolute; right: 12px; bottom: -18px; color: #dce4d8; font-size: 96px; }
+.steady-plan-prompt { display: flex; align-items: center; gap: 13px; margin-top: 15px; padding: 15px 18px; border: 1px solid #e6e8dd; border-radius: 9px; background: #f0f1e9; text-decoration: none; }
+.steady-plan-prompt .grounding-icon { margin: 0; }
+.steady-plan-prompt strong, .steady-plan-prompt small { display: block; }
+.steady-plan-prompt strong { color: #4d5e4f; font: 600 12px 'Manrope', sans-serif; }
+.steady-plan-prompt small { margin-top: 4px; color: #858d82; font-size: 10px; }
+.steady-plan-prompt .side-help-arrow { margin-left: auto; }
 .page-footer { display: flex; justify-content: space-between; gap: 12px; padding: 20px 0 10px; color: #999d94; font-size: 9px; }
 .page-footer a { color: #6c7d6d; text-decoration: none; }
 .page-footer a:hover, .support-inline-link:hover { text-decoration: underline; }
@@ -170,6 +176,19 @@ h1 { margin-bottom: 12px; color: #293a32; font: 500 clamp(40px, 4.5vw, 55px)/1.0
 .grounding-card .eyebrow { margin: 2px 0 8px; }
 .grounding-card h2 { margin-bottom: 7px; font: 600 16px 'Manrope', sans-serif; }
 .grounding-card p:last-child { max-width: 630px; margin: 0; color: #7e867d; font-size: 11px; line-height: 1.7; }
+
+.steady-plan-note { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; padding: 18px; border-radius: 9px; background: #edf1e9; }
+.steady-plan-note .location-icon { flex-basis: 34px; width: 34px; height: 34px; margin: 0; }
+.steady-plan-note h2 { margin: 0 0 5px; color: #34473b; font: 600 15px 'Manrope', sans-serif; }
+.steady-plan-note p { max-width: 690px; margin: 0; color: #788478; font-size: 10px; line-height: 1.7; }
+.steady-plan-card { padding: 23px; border: 1px solid #eae8df; border-radius: 9px; background: var(--white); }
+.steady-plan-field { margin-bottom: 17px; }
+.steady-plan-field label { display: block; margin-bottom: 8px; color: #4d5a51; font: 600 12px 'Manrope', sans-serif; }
+.steady-plan-field textarea { display: block; width: 100%; min-height: 68px; resize: vertical; padding: 12px; border: 1px solid #e7e6dc; border-radius: 7px; background: #fcfbf7; color: var(--ink); font: 11px/1.7 'DM Sans', 'Segoe UI', sans-serif; }
+.steady-plan-field textarea::placeholder { color: #a3a69c; }
+.steady-plan-status { margin: 7px 0 0; color: #60725f; font-size: 10px; }
+.steady-plan-privacy { margin: 5px 0 0; color: #959b92; font-size: 9px; line-height: 1.6; }
+.steady-plan-actions { display: flex; justify-content: flex-end; align-items: center; gap: 9px; margin-top: 13px; }
 
 .journal-card { padding: 23px; border: 1px solid #eae8df; border-radius: 9px; background: var(--white); }
 .journal-label { display: block; margin-bottom: 12px; font: 600 14px 'Manrope', sans-serif; }
@@ -324,6 +343,11 @@ h1 { margin-bottom: 12px; color: #293a32; font: 500 clamp(40px, 4.5vw, 55px)/1.0
   .journal-card { padding: 17px; }
   .journal-bottom { align-items: flex-start; flex-direction: column; }
   .journal-bottom > div { align-self: flex-end; }
+  .steady-plan-card { padding: 17px; }
+  .steady-plan-actions { flex-wrap: wrap; }
+  .steady-plan-actions .primary-button { min-height: 42px; }
+  .mobile-nav-link { min-width: 0; padding-right: 5px; padding-left: 5px; }
+  .mobile-nav-link small { font-size: 7px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

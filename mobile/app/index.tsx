@@ -106,6 +106,13 @@ export default function TodayScreen() {
           <Text style={styles.body}>Try a gentle breathing or grounding exercise. You can stop whenever you like.</Text>
         </Pressable>
       </Link>
+      <Link href="/plan" asChild>
+        <Pressable style={{ marginBottom: 12, padding: 19, borderWidth: 1, borderColor: colors.line, borderRadius: 16, backgroundColor: colors.surface }}>
+          <Text style={styles.tag}>A REMINDER FOR A HARD DAY</Text>
+          <Text style={styles.sectionTitle}>Make a little rough-day plan</Text>
+          <Text style={styles.body}>Write down what helps and who you could reach out to. Keep it for yourself, on this device.</Text>
+        </Pressable>
+      </Link>
       <Link href="/support" asChild>
         <Pressable accessibilityRole="button" style={{ alignSelf: 'flex-start', paddingVertical: 10 }}>
           <Text style={{ color: colors.greenDark, fontSize: 12, fontWeight: '700' }}>Talk to a real person →</Text>
