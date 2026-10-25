@@ -15,6 +15,7 @@ export default function PauseScreen() {
   const [seconds, setSeconds] = useState(PHASES[0].seconds);
   const [finished, setFinished] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
+  const phaseRef = useRef(0);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -29,14 +30,16 @@ export default function PauseScreen() {
       });
       setSeconds((value) => {
         if (value <= 1) {
-          setPhaseIndex((index) => (index + 1) % PHASES.length);
-          return PHASES[(phaseIndex + 1) % PHASES.length].seconds;
+          const nextPhase = (phaseRef.current + 1) % PHASES.length;
+          phaseRef.current = nextPhase;
+          setPhaseIndex(nextPhase);
+          return PHASES[nextPhase].seconds;
         }
         return value - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [running, phaseIndex]);
+  }, [running]);
 
   useEffect(() => {
     if (!running) {
@@ -55,17 +58,17 @@ export default function PauseScreen() {
     if (running) {
       setRunning(false);
       setElapsed(0);
+      phaseRef.current = 0;
       setPhaseIndex(0);
       setSeconds(PHASES[0].seconds);
       setFinished(false);
       return;
     }
-    if (finished) {
-      setElapsed(0);
-      setPhaseIndex(0);
-      setSeconds(PHASES[0].seconds);
-      setFinished(false);
-    }
+    setElapsed(0);
+    phaseRef.current = 0;
+    setPhaseIndex(0);
+    setSeconds(PHASES[0].seconds);
+    setFinished(false);
     setRunning(true);
   }
 
@@ -77,19 +80,25 @@ export default function PauseScreen() {
       <Text style={styles.lead}>There’s nothing to get right. Let’s take one slow, comfortable breath together.</Text>
 
       <View style={[styles.card, { alignItems: 'center', paddingVertical: 30 }]}>
-        <View style={{ height: 210, width: 210, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-          <Animated.View style={{ position: 'absolute', width: 162, height: 162, borderRadius: 100, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: '#C8D5C2', transform: [{ scale }] }} />
+        <View style={{ height: 210, width: 210, alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+          <Animated.View style={{ position: 'absolute', width: 166, height: 166, borderRadius: 100, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: '#C8D5C2', transform: [{ scale }] }} />
           <View style={{ alignItems: 'center' }}>
-            <Text accessibilityLiveRegion="polite" style={{ color: colors.greenDark, fontSize: 21, fontWeight: '600' }}>
+            <Text accessibilityLiveRegion="polite" style={{ color: colors.greenDark, fontSize: 22, fontWeight: '600' }}>
               {finished ? 'Well done.' : running ? PHASES[phaseIndex].label : 'Ready?'}
             </Text>
-            <Text style={[styles.muted, { marginTop: 7 }]}>{running ? `${seconds} seconds` : finished ? 'One gentle minute for you' : 'Breathe at your own pace'}</Text>
+            <Text style={[styles.muted, { marginTop: 7 }]}>
+              {running ? `${seconds} seconds` : finished ? 'One gentle minute for you' : 'Breathe at your own pace'}
+            </Text>
           </View>
         </View>
-        <Text style={[styles.muted, { marginBottom: 19, textAlign: 'center' }]}>
-          {running ? 'No need to force your breath. You can stop at any time.' : 'Find a comfortable position. If breathing exercises don’t feel right, try grounding below.'}
+        <Text style={[styles.muted, { marginBottom: 18, textAlign: 'center' }]}>
+          {running
+            ? `No need to force your breath. (${Math.max(0, 60 - elapsed)}s left — stop anytime)`
+            : 'Find a comfortable position. If breathing exercises don’t feel right, try grounding below.'}
         </Text>
-        <Action onPress={toggle} style={{ alignSelf: 'stretch' }}>{running ? 'Stop for now' : finished ? 'Take another minute' : 'Begin a gentle minute'}</Action>
+        <Action onPress={toggle} style={{ alignSelf: 'stretch' }}>
+          {running ? 'Stop for now' : finished ? 'Take another minute' : 'Begin a gentle minute'}
+        </Action>
       </View>
 
       <View style={[styles.card, { backgroundColor: colors.sand }]}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Link } from 'expo-router';
-import { BrandHeader, Eyebrow, Screen, styles } from '../src/ui';
+import { BrandHeader, Eyebrow, LoadingScreen, Screen, styles } from '../src/ui';
 import { todayKey, useAppState, type DailyTask, type Mood } from '../src/state';
 import { colors } from '../src/theme';
 
@@ -30,7 +30,7 @@ export default function TodayScreen() {
   const selectedMood = data.checkIn?.date === todayKey() ? data.checkIn.mood : null;
   const completed = plan.filter((item) => data.daily.tasks[item.key]).length;
 
-  if (!ready) return null;
+  if (!ready) return <LoadingScreen />;
 
   return (
     <Screen>
@@ -43,7 +43,7 @@ export default function TodayScreen() {
         <Eyebrow>CHECK IN WITH YOURSELF</Eyebrow>
         <Text style={styles.sectionTitle}>How are you, really?</Text>
         <Text style={[styles.muted, { marginBottom: 14 }]}>No right answer. Just notice where you are.</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 9 }}>
           {moods.map((mood) => {
             const active = selectedMood === mood.key;
             return (
@@ -52,15 +52,28 @@ export default function TodayScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ selected: active }}
                 onPress={() => checkIn(mood.key)}
-                style={{ flexGrow: 1, flexBasis: '45%', alignItems: 'center', paddingVertical: 11, borderWidth: 1, borderColor: active ? colors.green : colors.line, borderRadius: 12, backgroundColor: active ? colors.greenSoft : colors.paper }}
+                style={{
+                  flexGrow: 1,
+                  flexBasis: '45%',
+                  alignItems: 'center',
+                  paddingVertical: 13,
+                  borderWidth: 1,
+                  borderColor: active ? colors.green : colors.line,
+                  borderRadius: 12,
+                  backgroundColor: active ? colors.greenSoft : colors.paper,
+                }}
               >
-                <Text style={{ color: colors.greenDark, fontSize: 21 }}>{mood.face}</Text>
-                <Text style={[styles.muted, { marginTop: 3, color: active ? colors.greenDark : colors.body }]}>{mood.label}</Text>
+                <Text style={{ color: colors.greenDark, fontSize: 22 }}>{mood.face}</Text>
+                <Text style={[styles.muted, { marginTop: 4, color: active ? colors.greenDark : colors.body, fontWeight: active ? '700' : '500' }]}>{mood.label}</Text>
               </Pressable>
             );
           })}
         </View>
-        {selectedMood && <Text accessibilityLiveRegion="polite" style={[styles.body, { marginTop: 12 }]}>{moods.find((mood) => mood.key === selectedMood)?.response}</Text>}
+        {selectedMood && (
+          <Text accessibilityLiveRegion="polite" style={[styles.body, { marginTop: 14, color: colors.greenDark, fontWeight: '500' }]}>
+            {moods.find((mood) => mood.key === selectedMood)?.response}
+          </Text>
+        )}
       </View>
 
       <Eyebrow>THE BASICS COUNT</Eyebrow>
@@ -90,9 +103,9 @@ export default function TodayScreen() {
               <View style={[styles.taskCheck, done && styles.taskCheckDone]}>
                 {done && <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '800' }}>✓</Text>}
               </View>
-              <View style={{ flex: 1, paddingVertical: 9 }}>
+              <View style={{ flex: 1, paddingVertical: 10 }}>
                 <Text style={[styles.taskTitle, done && { color: colors.muted, textDecorationLine: 'line-through' }]}>{task.title}</Text>
-                <Text style={[styles.muted, { marginTop: 3, fontSize: 10 }]}>{task.note}</Text>
+                <Text style={[styles.muted, { marginTop: 3, fontSize: 12 }]}>{task.note}</Text>
               </View>
             </Pressable>
           );
@@ -115,10 +128,10 @@ export default function TodayScreen() {
       </Link>
       <Link href="/support" asChild>
         <Pressable accessibilityRole="button" style={{ alignSelf: 'flex-start', paddingVertical: 10 }}>
-          <Text style={{ color: colors.greenDark, fontSize: 12, fontWeight: '700' }}>Talk to a real person →</Text>
+          <Text style={{ color: colors.greenDark, fontSize: 14, fontWeight: '700' }}>Talk to a real person →</Text>
         </Pressable>
       </Link>
-      <Text style={[styles.muted, { marginTop: 18, fontSize: 10 }]}>MEN-TAL offers general wellbeing ideas, not diagnosis or treatment. You deserve qualified help when you need it.</Text>
+      <Text style={[styles.muted, { marginTop: 16, fontSize: 12 }]}>MEN-TAL offers general wellbeing ideas, not diagnosis or treatment. You deserve qualified help when you need it.</Text>
     </Screen>
   );
 }

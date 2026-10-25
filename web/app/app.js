@@ -169,12 +169,22 @@ function initializeSteadyPlan() {
   const status = document.querySelector('#steady-plan-status');
   const inputs = Object.fromEntries(fields.map((field) => [field, document.querySelector(`#steady-${field}`)]));
 
+  function updateCounters() {
+    fields.forEach((field) => {
+      const counter = document.querySelector(`[data-counter-for="steady-${field}"]`);
+      if (counter && inputs[field]) {
+        counter.textContent = `${inputs[field].value.length}/100`;
+      }
+    });
+  }
+
   if (valid) {
     fields.forEach((field) => { inputs[field].value = plan[field]; });
   } else {
     console.error('The saved steadying plan could not be validated.');
     status.textContent = 'Saved plan could not be read. You can clear it and start again.';
   }
+  updateCounters();
 
   document.querySelector('#save-steady-plan').addEventListener('click', () => {
     const nextPlan = Object.fromEntries(fields.map((field) => [field, inputs[field].value]));
@@ -187,12 +197,14 @@ function initializeSteadyPlan() {
     const emptyPlan = { signs: '', helpful: '', person: '', message: '' };
     if (saveStored(STORAGE_KEYS.steadyPlan, emptyPlan)) {
       fields.forEach((field) => { inputs[field].value = ''; });
+      updateCounters();
       status.textContent = 'Your plan has been cleared from this browser.';
       showToast('Your plan has been cleared.');
     }
   });
   fields.forEach((field) => {
     inputs[field].addEventListener('input', () => {
+      updateCounters();
       status.textContent = 'Only in this browser. Save when you’re ready.';
     });
   });

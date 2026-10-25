@@ -60,7 +60,7 @@
           <div class="mobile-brand"><img class="brand-mark" src="assets/logo-mark.png" alt=""><strong>men-tal<span class="brand-period">.</span></strong></div>
           <div class="topbar-date"><span class="date-mark" aria-hidden="true"></span><span id="today-label">A fresh start, whenever you need one</span></div>
           <div class="topbar-actions">
-            <button class="install-app" id="install-app" type="button" aria-label="Install MEN-TAL on this device">
+            <button class="install-app" id="install-app" data-install-app type="button" aria-label="Install MEN-TAL on this device">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 16v4h14v-4"/></svg><span>Install app</span>
             </button>
             <button class="top-help" data-open-support aria-label="Open support resources">
@@ -183,10 +183,10 @@
             <div><h2>A note from you, to you</h2><p>This is a personal reminder, not a professional safety plan. MEN-TAL doesn’t monitor it, detect emergencies, or contact anyone for you.</p></div>
           </div>
           <div class="steady-plan-card">
-            <div class="steady-plan-field"><label for="steady-signs">How might I notice things are getting heavy?</label><textarea id="steady-signs" maxlength="100" rows="2" placeholder="For example: I stop replying, skip meals, or stay up late."></textarea></div>
-            <div class="steady-plan-field"><label for="steady-helpful">What small thing can help me through the next few minutes?</label><textarea id="steady-helpful" maxlength="100" rows="2" placeholder="Something simple that has helped before…"></textarea></div>
-            <div class="steady-plan-field"><label for="steady-person">Who could I reach out to?</label><textarea id="steady-person" maxlength="100" rows="2" placeholder="A name, or just “my brother” / “a friend”."></textarea></div>
-            <div class="steady-plan-field"><label for="steady-message">What could I say?</label><textarea id="steady-message" maxlength="100" rows="2" placeholder="“I’m having a rough day. Could you check in with me?”"></textarea></div>
+            <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-signs">How might I notice things are getting heavy?</label><span class="field-counter" data-counter-for="steady-signs">0/100</span></div><textarea id="steady-signs" maxlength="100" rows="2" placeholder="For example: I stop replying, skip meals, or stay up late."></textarea></div>
+            <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-helpful">What small thing can help me through the next few minutes?</label><span class="field-counter" data-counter-for="steady-helpful">0/100</span></div><textarea id="steady-helpful" maxlength="100" rows="2" placeholder="Something simple that has helped before…"></textarea></div>
+            <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-person">Who could I reach out to?</label><span class="field-counter" data-counter-for="steady-person">0/100</span></div><textarea id="steady-person" maxlength="100" rows="2" placeholder="A name, or just “my brother” / “a friend”."></textarea></div>
+            <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-message">What could I say?</label><span class="field-counter" data-counter-for="steady-message">0/100</span></div><textarea id="steady-message" maxlength="100" rows="2" placeholder="“I’m having a rough day. Could you check in with me?”"></textarea></div>
             <p id="steady-plan-status" class="steady-plan-status" aria-live="polite">Optional. Your plan stays in this browser only.</p>
             <p class="steady-plan-privacy">Anyone with access to your browser profile may be able to read this plan. It is stored on this device, not uploaded.</p>
             <div class="steady-plan-actions"><button class="quiet-button" id="clear-steady-plan" type="button">Clear plan</button><button class="primary-button" id="save-steady-plan" type="button">Save my plan</button></div>
@@ -230,6 +230,7 @@
           </div>
           <div class="support-grid">
             <article class="support-card support-pro"><span class="support-card-icon" aria-hidden="true">＋</span><p class="care-category">ONGOING SUPPORT</p><h2>Talk to a health professional</h2><p>A doctor or mental health professional can listen, help make sense of things, and talk through options with you.</p><a class="support-inline-link" href="https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response" target="_blank" rel="noopener noreferrer">Learn about mental health support <span aria-hidden="true">↗</span></a></article>
+            <article class="support-card support-peer"><span class="support-card-icon" aria-hidden="true">⌂</span><p class="care-category">EVERYDAY CONNECTION</p><h2>Lean on someone you trust</h2><p>You don’t need a speech. Letting a friend, brother, or family member know today feels heavy can make the next hour lighter.</p><a class="support-inline-link" href="#plan" data-page="plan">Draft a simple text in your rough-day plan <span aria-hidden="true">→</span></a></article>
           </div>
           <article class="contribution-card">
             <span class="contribution-icon" aria-hidden="true">♡</span>

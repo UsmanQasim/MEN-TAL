@@ -78,7 +78,7 @@ export default function SupportScreen() {
           {busy ? 'Checking…' : 'Find my country'}
         </Action>
         {status ? <Text accessibilityLiveRegion="polite" style={[styles.muted, { marginTop: 10 }]}>{status}</Text> : null}
-        {error ? <Text accessibilityLiveRegion="polite" style={{ marginTop: 10, color: colors.danger, fontSize: 11, lineHeight: 17 }}>{error}</Text> : null}
+        {error ? <Text accessibilityLiveRegion="polite" style={{ marginTop: 10, color: colors.danger, fontSize: 13, lineHeight: 19 }}>{error}</Text> : null}
         <Text style={[styles.muted, { marginTop: 17, marginBottom: 7 }]}>Or enter the two-letter country code (for example, US or PK)</Text>
         <TextInput
           value={countryCode}
@@ -89,8 +89,9 @@ export default function SupportScreen() {
           autoCapitalize="characters"
           maxLength={2}
           placeholder="Country code"
+          placeholderTextColor="#959A90"
           accessibilityLabel="Country code"
-          style={{ height: 48, paddingHorizontal: 14, borderWidth: 1, borderColor: '#D8E1D3', borderRadius: 12, backgroundColor: colors.surface, color: colors.ink, fontSize: 14 }}
+          style={{ height: 48, paddingHorizontal: 14, borderWidth: 1, borderColor: '#D8E1D3', borderRadius: 12, backgroundColor: colors.surface, color: colors.ink, fontSize: 15 }}
         />
         {country ? <Text style={[styles.body, { marginTop: 10, fontWeight: '600' }]}>Approximate location: {country} ({normalizedCode})</Text> : null}
         <Action variant="outlined" onPress={() => openLink(countryUrl)} style={{ marginTop: 12 }}>
@@ -103,7 +104,7 @@ export default function SupportScreen() {
         <Text style={styles.sectionTitle}>Talk to a health professional</Text>
         <Text style={styles.body}>A doctor or mental health professional can listen, help make sense of things, and talk through options with you.</Text>
         <Pressable accessibilityRole="link" onPress={() => openLink('https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response')} style={{ paddingTop: 12 }}>
-          <Text style={{ color: colors.greenDark, fontSize: 12, fontWeight: '700' }}>Learn about mental health support ↗</Text>
+          <Text style={{ color: colors.greenDark, fontSize: 14, fontWeight: '700' }}>Learn about mental health support ↗</Text>
         </Pressable>
       </View>
 
@@ -121,8 +122,8 @@ export default function SupportScreen() {
           <Action variant="outlined" onPress={() => openLink(donationUrl)} style={{ marginTop: 13 }}>Visit creator tip page ↗</Action>
         ) : null}
       </View>
-      {linkError ? <Text accessibilityLiveRegion="polite" style={{ color: colors.danger, fontSize: 11 }}>{linkError}</Text> : null}
-      <Text style={[styles.muted, { marginTop: 4, fontSize: 10 }]}>MEN-TAL offers general wellbeing ideas, not diagnosis, treatment, or crisis care. If things feel unmanageable, you deserve support from a qualified person.</Text>
+      {linkError ? <Text accessibilityLiveRegion="polite" style={{ color: colors.danger, fontSize: 13 }}>{linkError}</Text> : null}
+      <Text style={[styles.muted, { marginTop: 6, fontSize: 12 }]}>MEN-TAL offers general wellbeing ideas, not diagnosis, treatment, or crisis care. If things feel unmanageable, you deserve support from a qualified person.</Text>
     </Screen>
   );
 }

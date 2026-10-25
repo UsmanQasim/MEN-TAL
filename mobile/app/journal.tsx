@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
-import { Action, BrandHeader, Eyebrow, Screen, styles } from '../src/ui';
+import { Text, TextInput, View } from 'react-native';
+import { Action, BrandHeader, Eyebrow, LoadingScreen, Screen, styles } from '../src/ui';
 import { journalFitsStorage, MAX_JOURNAL_BYTES, useAppState, utf8Length } from '../src/state';
 import { colors } from '../src/theme';
 
@@ -29,7 +29,7 @@ export default function JournalScreen() {
     }
   }
 
-  if (!ready) return null;
+  if (!ready) return <LoadingScreen />;
 
   return (
     <Screen>
@@ -49,18 +49,16 @@ export default function JournalScreen() {
           maxLength={1500}
           textAlignVertical="top"
           placeholder="It doesn’t have to make sense. Start wherever you are…"
-          placeholderTextColor="#A9ADA3"
+          placeholderTextColor="#959A90"
           accessibilityLabel="Journal entry"
-          style={{ minHeight: 220, marginTop: 14, padding: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 12, backgroundColor: colors.paper, color: colors.ink, fontSize: 14, lineHeight: 22 }}
+          style={{ minHeight: 220, marginTop: 14, padding: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 12, backgroundColor: colors.paper, color: colors.ink, fontSize: 15, lineHeight: 23 }}
         />
-        <Text style={[styles.muted, { marginTop: 11 }]}>{status}</Text>
-        <Text style={[styles.muted, { marginTop: 5, fontSize: 10 }]}>Your note is stored in Android Keystore or iOS Keychain, not uploaded. On web it stays in this browser’s local storage. This is not a substitute for professional care.</Text>
-        <Text style={[styles.muted, { marginTop: 5, fontSize: 10 }]}>{utf8Length(entry)} / {MAX_JOURNAL_BYTES} bytes. The limit keeps notes small enough for protected device storage.</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
-          <Pressable accessibilityRole="button" onPress={clear} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 }}>
-            <Text style={{ color: colors.muted, fontSize: 12, fontWeight: '600' }}>Clear note</Text>
-          </Pressable>
-          <Action onPress={save} style={{ minWidth: 118 }}>Save for later</Action>
+        <Text style={[styles.muted, { marginTop: 12, color: colors.greenDark, fontWeight: '500' }]}>{status}</Text>
+        <Text style={[styles.muted, { marginTop: 5, fontSize: 12 }]}>Your note is stored in Android Keystore or iOS Keychain, not uploaded. On web it stays in this browser’s local storage. This is not a substitute for professional care.</Text>
+        <Text style={[styles.muted, { marginTop: 5, fontSize: 12 }]}>{utf8Length(entry)} / {MAX_JOURNAL_BYTES} bytes. The limit keeps notes small enough for protected device storage.</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 15 }}>
+          <Action variant="outlined" onPress={clear}>Clear note</Action>
+          <Action onPress={save} style={{ minWidth: 124 }}>Save for later</Action>
         </View>
       </View>
       <View style={[styles.card, { backgroundColor: colors.greenSoft }]}>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
-import { Action, BrandHeader, Eyebrow, Screen, styles } from '../src/ui';
+import { Action, BrandHeader, Eyebrow, LoadingScreen, Screen, styles } from '../src/ui';
 import { MAX_STEADY_PLAN_FIELD_LENGTH, steadyPlanFitsStorage, useAppState, type SteadyPlan } from '../src/state';
 import { colors } from '../src/theme';
 
@@ -39,7 +39,7 @@ export default function SteadyPlanScreen() {
     }
   }
 
-  if (!ready) return null;
+  if (!ready) return <LoadingScreen />;
 
   return (
     <Screen>
@@ -56,7 +56,7 @@ export default function SteadyPlanScreen() {
       <View style={styles.card}>
         {prompts.map((prompt, index) => (
           <View key={prompt.key} style={{ marginBottom: index === prompts.length - 1 ? 0 : 18 }}>
-            <Text style={[styles.sectionTitle, { fontSize: 13 }]}>{prompt.label}</Text>
+            <Text style={[styles.sectionTitle, { fontSize: 15, lineHeight: 21 }]}>{prompt.label}</Text>
             <TextInput
               value={draft[prompt.key]}
               onChangeText={(value) => {
@@ -67,16 +67,16 @@ export default function SteadyPlanScreen() {
               multiline
               textAlignVertical="top"
               placeholder={prompt.placeholder}
-              placeholderTextColor="#A9ADA3"
+              placeholderTextColor="#959A90"
               accessibilityLabel={prompt.label}
-              style={{ minHeight: 72, marginTop: 8, padding: 12, borderWidth: 1, borderColor: colors.line, borderRadius: 12, backgroundColor: colors.paper, color: colors.ink, fontSize: 13, lineHeight: 19 }}
+              style={{ minHeight: 78, marginTop: 8, padding: 13, borderWidth: 1, borderColor: colors.line, borderRadius: 12, backgroundColor: colors.paper, color: colors.ink, fontSize: 15, lineHeight: 22 }}
             />
-            <Text style={[styles.muted, { marginTop: 4, textAlign: 'right', fontSize: 9 }]}>{draft[prompt.key].length}/{MAX_STEADY_PLAN_FIELD_LENGTH}</Text>
+            <Text style={[styles.muted, { marginTop: 4, textAlign: 'right', fontSize: 12 }]}>{draft[prompt.key].length}/{MAX_STEADY_PLAN_FIELD_LENGTH}</Text>
           </View>
         ))}
-        <Text accessibilityLiveRegion="polite" style={[styles.muted, { marginTop: 4 }]}>{status}</Text>
-        <Text style={[styles.muted, { marginTop: 5, fontSize: 10 }]}>Saved in protected device storage on mobile, or this browser on web. Anyone with access to your unlocked device or browser profile may be able to read it.</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
+        <Text accessibilityLiveRegion="polite" style={[styles.muted, { marginTop: 6, color: colors.greenDark, fontWeight: '500' }]}>{status}</Text>
+        <Text style={[styles.muted, { marginTop: 5, fontSize: 12 }]}>Saved in protected device storage on mobile, or this browser on web. Anyone with access to your unlocked device or browser profile may be able to read it.</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 15 }}>
           <Action variant="outlined" onPress={clear}>Clear plan</Action>
           <Action onPress={save}>Save my plan</Action>
         </View>
