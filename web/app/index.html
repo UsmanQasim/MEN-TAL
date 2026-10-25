@@ -99,6 +99,36 @@
               <button class="mood-option" data-mood="good" aria-pressed="false"><span aria-hidden="true">☀</span><small>Doing okay</small></button>
             </div>
             <p class="checkin-response" id="checkin-response" aria-live="polite"></p>
+            <div class="checkin-followup" id="checkin-followup" hidden>
+              <span class="care-category" id="checkin-followup-tag">FOR A HEAVY MOMENT</span>
+              <p class="checkin-followup-text" id="checkin-followup-text"></p>
+              <div class="checkin-followup-links">
+                <a href="#plan" data-page="plan">Open my rough-day plan <span aria-hidden="true">→</span></a>
+                <a href="#reset" data-page="reset">Take a 1-minute breather <span aria-hidden="true">→</span></a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pathway-card">
+            <div class="card-overline"><span class="tiny-spark" aria-hidden="true">✳</span> WHAT’S WEIGHING ON YOU?</div>
+            <h2>Pick what feels closest right now</h2>
+            <p class="pathway-intro">Optional, low-pressure ideas for everyday strain. Swap or close anytime—no streaks or guilt.</p>
+            <div class="pathway-pills" role="group" aria-label="Everyday pressures">
+              <button class="pathway-pill" type="button" data-pathway="sleep" aria-pressed="false">Exhausted or can’t sleep</button>
+              <button class="pathway-pill" type="button" data-pathway="money" aria-pressed="false">Work or money stress</button>
+              <button class="pathway-pill" type="button" data-pathway="lonely" aria-pressed="false">Feeling isolated</button>
+              <button class="pathway-pill" type="button" data-pathway="energy" aria-pressed="false">Hard to get moving</button>
+              <button class="pathway-pill" type="button" data-pathway="overwhelm" aria-pressed="false">Head feels too loud</button>
+            </div>
+            <div class="pathway-detail" id="pathway-detail" hidden aria-live="polite">
+              <span class="care-category" id="pathway-tag"></span>
+              <h3 id="pathway-title"></h3>
+              <p id="pathway-idea"></p>
+              <div class="pathway-actions">
+                <button class="secondary-button" id="pathway-next" type="button">Show another idea ↻</button>
+                <button class="quiet-button" id="pathway-close" type="button">Dismiss</button>
+              </div>
+            </div>
           </div>
 
           <div class="section-heading">
@@ -114,7 +144,7 @@
               <span class="care-category">BODY & ENERGY</span>
               <h3>Have a glass of water</h3>
               <p>Or step outside for a minute. Your body deserves a little care, even on a hard day.</p>
-              <button class="text-action" data-task="water">I did this <span aria-hidden="true">→</span></button>
+              <button class="text-action" data-task="water" aria-pressed="false">I did this <span aria-hidden="true">→</span></button>
             </article>
             <article class="care-card care-food">
               <span class="care-icon" aria-hidden="true">
@@ -123,7 +153,7 @@
               <span class="care-category">FOOD & FUEL</span>
               <h3>Eat something simple</h3>
               <p>Toast, fruit, leftovers. It doesn’t need to be perfect to help you get through the next few hours.</p>
-              <button class="text-action" data-task="food">I did this <span aria-hidden="true">→</span></button>
+              <button class="text-action" data-task="food" aria-pressed="false">I did this <span aria-hidden="true">→</span></button>
             </article>
             <article class="care-card care-life">
               <span class="care-icon" aria-hidden="true">
@@ -132,7 +162,7 @@
               <span class="care-category">YOUR SPACE</span>
               <h3>Make one thing easier</h3>
               <p>Wash your face. Change your shirt. Clear one corner. You’re allowed to start small.</p>
-              <button class="text-action" data-task="reset">I did this <span aria-hidden="true">→</span></button>
+              <button class="text-action" data-task="reset" aria-pressed="false">I did this <span aria-hidden="true">→</span></button>
             </article>
           </div>
 
@@ -166,12 +196,33 @@
           <h1>A minute to<br>come back to yourself<span class="heading-period">.</span></h1>
           <p class="section-lead">There’s nothing to get right. Let’s take one slow breath together.</p>
           <div class="breathing-card">
-            <div class="breathing-visual" id="breathing-visual"><div class="breathing-orbit"></div><div class="breathing-core"><span id="breath-instruction">Ready?</span><small id="breath-count">Breathe at your own pace</small></div></div>
+            <div class="breath-pattern-bar" role="group" aria-label="Breathing pace">
+              <button class="pathway-pill is-active" type="button" data-breath-pattern="gentle" aria-pressed="true">Gentle (4–6)</button>
+              <button class="pathway-pill" type="button" data-breath-pattern="steady" aria-pressed="false">Steady (4–4–4)</button>
+            </div>
+            <div class="breathing-visual" id="breathing-visual"><div class="breathing-orbit"></div><div class="breathing-core"><span id="breath-instruction">Ready?</span><small id="breath-count">4s in · 6s out</small></div></div>
             <p class="breathing-caption" id="breathing-caption">Find a comfortable position. You can stop at any time.</p>
             <button class="primary-button" id="breath-button">Begin a gentle minute</button>
             <button class="quiet-button" id="breath-skip">I’d rather try something else</button>
           </div>
-          <div class="grounding-card"><div class="grounding-icon" aria-hidden="true">✳</div><div><p class="eyebrow">OR JUST NOTICE WHAT’S HERE</p><h2 tabindex="-1">A small grounding exercise</h2><p>Notice one thing you can see, one thing you can feel under your hands or feet, and one sound nearby. No need to change anything.</p></div></div>
+          <div class="grounding-card">
+            <div class="grounding-icon" aria-hidden="true">✳</div>
+            <div class="grounding-body">
+              <p class="eyebrow">OR JUST NOTICE WHAT’S HERE</p>
+              <h2 tabindex="-1">A small grounding check-in</h2>
+              <p id="grounding-intro">Notice one thing you can see, one thing you can feel under your hands or feet, and one sound nearby. No need to change anything.</p>
+              <button class="secondary-button" id="grounding-start" type="button">Walk through 3 steps →</button>
+              <div class="grounding-step-box" id="grounding-step-box" hidden aria-live="polite">
+                <span class="care-category" id="grounding-step-tag">STEP 1 OF 3 · SEE</span>
+                <h3 id="grounding-step-title">Notice one thing you can see</h3>
+                <p id="grounding-step-text"></p>
+                <div class="pathway-actions">
+                  <button class="primary-button" id="grounding-next" type="button">Next step →</button>
+                  <button class="quiet-button" id="grounding-close" type="button">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="page-section secondary-section" id="plan" data-section="plan" hidden>
@@ -186,10 +237,25 @@
             <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-signs">How might I notice things are getting heavy?</label><span class="field-counter" data-counter-for="steady-signs">0/100</span></div><textarea id="steady-signs" maxlength="100" rows="2" placeholder="For example: I stop replying, skip meals, or stay up late."></textarea></div>
             <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-helpful">What small thing can help me through the next few minutes?</label><span class="field-counter" data-counter-for="steady-helpful">0/100</span></div><textarea id="steady-helpful" maxlength="100" rows="2" placeholder="Something simple that has helped before…"></textarea></div>
             <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-person">Who could I reach out to?</label><span class="field-counter" data-counter-for="steady-person">0/100</span></div><textarea id="steady-person" maxlength="100" rows="2" placeholder="A name, or just “my brother” / “a friend”."></textarea></div>
-            <div class="steady-plan-field"><div class="steady-plan-label-row"><label for="steady-message">What could I say?</label><span class="field-counter" data-counter-for="steady-message">0/100</span></div><textarea id="steady-message" maxlength="100" rows="2" placeholder="“I’m having a rough day. Could you check in with me?”"></textarea></div>
+            <div class="steady-plan-field">
+              <div class="steady-plan-label-row"><label for="steady-message">What could I say?</label><span class="field-counter" data-counter-for="steady-message">0/100</span></div>
+              <textarea id="steady-message" maxlength="100" rows="2" placeholder="“I’m having a rough day. Could you check in with me?”"></textarea>
+              <div class="starter-messages">
+                <span class="starter-label">Need words? Tap a starter to fill in:</span>
+                <div class="starter-chips">
+                  <button type="button" class="starter-chip" data-starter-message="Hey, having a bit of a heavy day. Do you have a few minutes to catch up?">“Hey, having a bit of a heavy day. Do you have a few minutes to catch up?”</button>
+                  <button type="button" class="starter-chip" data-starter-message="No need to fix anything, just wanted to let you know today feels rough.">“No need to fix anything, just wanted to let you know today feels rough.”</button>
+                  <button type="button" class="starter-chip" data-starter-message="Could you check in on me later today? Just a quick text helps.">“Could you check in on me later today? Just a quick text helps.”</button>
+                </div>
+              </div>
+            </div>
             <p id="steady-plan-status" class="steady-plan-status" aria-live="polite">Optional. Your plan stays in this browser only.</p>
             <p class="steady-plan-privacy">Anyone with access to your browser profile may be able to read this plan. It is stored on this device, not uploaded.</p>
-            <div class="steady-plan-actions"><button class="quiet-button" id="clear-steady-plan" type="button">Clear plan</button><button class="primary-button" id="save-steady-plan" type="button">Save my plan</button></div>
+            <div class="steady-plan-actions">
+              <button class="secondary-button" id="copy-steady-message" type="button" hidden>Copy message</button>
+              <button class="quiet-button" id="clear-steady-plan" type="button">Clear plan</button>
+              <button class="primary-button" id="save-steady-plan" type="button">Save my plan</button>
+            </div>
           </div>
           <div class="urgent-card"><span class="urgent-icon" aria-hidden="true">!</span><div><strong>If you’re in immediate danger:</strong><p>Call your local emergency number or go to the nearest emergency department now. If you can, tell someone you trust and ask them to stay with you.</p><a class="support-inline-link" href="#support" data-page="support">Find support resources <span aria-hidden="true">→</span></a></div></div>
         </section>
@@ -199,11 +265,23 @@
           <h1>Put it somewhere<br>outside your head<span class="heading-period">.</span></h1>
           <p class="section-lead">Write as much or as little as you like. Notes stay in this browser, not on a server. Anyone who can access this browser profile may be able to read them.</p>
           <div class="journal-card">
-            <label for="journal-entry" class="journal-label">What feels most on your mind right now?</label>
+            <div class="steady-plan-label-row">
+              <label for="journal-entry" class="journal-label">What feels most on your mind right now?</label>
+              <span class="field-counter" id="journal-counter">0/3000</span>
+            </div>
             <textarea id="journal-entry" maxlength="3000" placeholder="It doesn’t have to make sense. Start wherever you are…" rows="8"></textarea>
             <div class="journal-bottom"><span id="journal-status" aria-live="polite">Stored in this browser only. Not uploaded.</span><div><button class="quiet-button" id="clear-journal">Clear entry</button><button class="primary-button" id="save-journal">Save for later</button></div></div>
           </div>
-          <div class="journal-prompt"><span aria-hidden="true">✳</span><p>If writing feels like too much, try finishing this sentence in your head: <strong>“Right now, I need…”</strong></p></div>
+          <div class="journal-prompt">
+            <span aria-hidden="true">✳</span>
+            <div class="journal-prompt-body">
+              <p>If writing feels like too much, try finishing this sentence: <strong id="journal-prompt-text">“Right now, I need…”</strong></p>
+              <div class="journal-prompt-actions">
+                <button class="secondary-button" id="use-journal-prompt" type="button">Use this prompt →</button>
+                <button class="quiet-button" id="next-journal-prompt" type="button">Another prompt ↻</button>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="page-section secondary-section" id="support" data-section="support" hidden>
@@ -241,6 +319,18 @@
             <span class="install-card-icon" aria-hidden="true">↗</span>
             <div><p class="care-category">TAKE MEN-TAL WITH YOU</p><h2>Put it on your home screen</h2><p id="install-help">Install this free web app for quick access. It works on iPhone and Android without an app-store download.</p></div>
             <button class="quiet-button" data-install-app type="button">How to install</button>
+          </div>
+          <div class="install-card">
+            <span class="install-card-icon" aria-hidden="true">◌</span>
+            <div>
+              <p class="care-category">YOUR PRIVACY &amp; DATA</p>
+              <h2>Everything stays in this browser</h2>
+              <p id="erase-data-status">Your check-ins, daily tasks, journal note, and rough-day plan are stored locally in this browser. You can erase all saved entries whenever you like.</p>
+            </div>
+            <div class="erase-data-actions">
+              <button class="secondary-button" id="erase-all-data" type="button">Erase all saved data</button>
+              <button class="quiet-button" id="cancel-erase-data" type="button" hidden>Cancel</button>
+            </div>
           </div>
           <div class="urgent-card"><span class="urgent-icon" aria-hidden="true">!</span><div><strong>If you might hurt yourself or someone else, or you’re in immediate danger:</strong><p>Call your local emergency number or go to the nearest emergency department now. If you can, tell someone you trust and ask them to stay with you.</p></div></div>
           <p class="support-note">MEN-TAL offers general wellbeing ideas, not diagnosis, treatment, or crisis care. You deserve support from a qualified person, especially if things feel unmanageable.</p>

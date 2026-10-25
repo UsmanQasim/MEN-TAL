@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 export type Mood = 'rough' | 'low' | 'okay' | 'good';
 export type DailyTask = 'connect' | 'move' | 'rest';
+export type BasicTask = 'water' | 'food' | 'space';
 export type SteadyPlan = {
   signs: string;
   helpful: string;
@@ -13,7 +14,11 @@ export type SteadyPlan = {
 
 export type StoredData = {
   checkIn: { date: string; mood: Mood } | null;
-  daily: { date: string; tasks: Record<DailyTask, boolean> };
+  daily: {
+    date: string;
+    tasks: Record<DailyTask, boolean>;
+    basics?: Record<BasicTask, boolean>;
+  };
   journal: string;
 };
 
@@ -25,8 +30,10 @@ type AppState = {
   notice: string | null;
   checkIn: (mood: Mood) => void;
   toggleTask: (task: DailyTask) => void;
+  toggleBasic: (basic: BasicTask) => void;
   saveJournal: (journal: string) => Promise<boolean>;
   saveSteadyPlan: (plan: SteadyPlan) => Promise<boolean>;
+  clearAllData: () => Promise<boolean>;
   clearNotice: () => void;
 };
 
@@ -41,9 +48,18 @@ export const todayKey = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 };
 
+const emptyTasks: Record<DailyTask, boolean> = { connect: false, move: false, rest: false };
+const emptyBasics: Record<BasicTask, boolean> = { water: false, food: false, space: false };
+
+const createFreshDaily = () => ({
+  date: todayKey(),
+  tasks: { ...emptyTasks },
+  basics: { ...emptyBasics },
+});
+
 const initialData: StoredData = {
   checkIn: null,
-  daily: { date: todayKey(), tasks: { connect: false, move: false, rest: false } },
+  daily: createFreshDaily(),
   journal: '',
 };
 const emptySteadyPlan: SteadyPlan = { signs: '', helpful: '', person: '', message: '' };
@@ -56,7 +72,14 @@ function isStoredData(value: unknown): value is StoredData {
   const candidate = value as Partial<StoredData>;
   const daily = candidate.daily;
   const tasks = daily?.tasks;
+  const basics = daily?.basics;
   const checkIn = candidate.checkIn;
+  const validBasics = basics == null || (
+    typeof basics === 'object'
+    && typeof basics.water === 'boolean'
+    && typeof basics.food === 'boolean'
+    && typeof basics.space === 'boolean'
+  );
   return typeof candidate.journal === 'string'
     && !!daily
     && typeof daily.date === 'string'
@@ -64,6 +87,7 @@ function isStoredData(value: unknown): value is StoredData {
     && typeof tasks.connect === 'boolean'
     && typeof tasks.move === 'boolean'
     && typeof tasks.rest === 'boolean'
+    && validBasics
     && (checkIn == null || (
       typeof checkIn.date === 'string'
       && moods.includes(checkIn.mood)
@@ -146,11 +170,16 @@ export function AppStateProvider({ children }: React.PropsWithChildren) {
             throw new Error('Saved data could not be validated.');
           }
           const candidate = parsed;
-          const nextData = {
+          const isToday = candidate.daily.date === todayKey();
+          const nextData: StoredData = {
             checkIn: candidate.checkIn ?? null,
-            daily: candidate.daily.date === todayKey()
-              ? candidate.daily
-              : { date: todayKey(), tasks: { connect: false, move: false, rest: false } },
+            daily: isToday
+              ? {
+                  date: candidate.daily.date,
+                  tasks: candidate.daily.tasks,
+                  basics: candidate.daily.basics ?? { ...emptyBasics },
+                }
+              : createFreshDaily(),
             journal: candidate.journal,
           };
           dataRef.current = nextData;
@@ -205,9 +234,19 @@ export function AppStateProvider({ children }: React.PropsWithChildren) {
   const toggleTask = useCallback((task: DailyTask) => {
     void updateData((current) => {
       const daily = current.daily.date === todayKey()
-        ? current.daily
-        : { date: todayKey(), tasks: { connect: false, move: false, rest: false } };
+        ? { ...current.daily, basics: current.daily.basics ?? { ...emptyBasics } }
+        : createFreshDaily();
       return { ...current, daily: { ...daily, tasks: { ...daily.tasks, [task]: !daily.tasks[task] } } };
+    });
+  }, [updateData]);
+
+  const toggleBasic = useCallback((basic: BasicTask) => {
+    void updateData((current) => {
+      const daily = current.daily.date === todayKey()
+        ? { ...current.daily, basics: current.daily.basics ?? { ...emptyBasics } }
+        : createFreshDaily();
+      const basics = daily.basics ?? { ...emptyBasics };
+      return { ...current, daily: { ...daily, basics: { ...basics, [basic]: !basics[basic] } } };
     });
   }, [updateData]);
 
@@ -235,9 +274,46 @@ export function AppStateProvider({ children }: React.PropsWithChildren) {
     return pendingWrite.then(() => true, () => false);
   }, [storageAvailable]);
 
+  const clearAllData = useCallback(() => {
+    if (!storageAvailable) return Promise.resolve(false);
+    const freshData: StoredData = {
+      checkIn: null,
+      daily: createFreshDaily(),
+      journal: '',
+    };
+    const freshPlan: SteadyPlan = { ...emptySteadyPlan };
+    dataRef.current = freshData;
+    setData(freshData);
+    setSteadyPlan(freshPlan);
+    const pendingWrite = writeQueue.current.then(() =>
+      Promise.all([
+        writeData(JSON.stringify(freshData)),
+        writeSteadyPlan(JSON.stringify(freshPlan)),
+      ]).then(() => undefined),
+    );
+    writeQueue.current = pendingWrite.catch((error: unknown) => {
+      console.error('MEN-TAL could not clear saved data on this device.', error);
+      setNotice('This device could not clear all saved data. Check available storage and try again.');
+    });
+    return pendingWrite.then(() => true, () => false);
+  }, [storageAvailable]);
+
   const clearNotice = useCallback(() => setNotice(null), []);
-  const value = useMemo(() => ({ data, steadyPlan, ready, storageAvailable, notice, checkIn, toggleTask, saveJournal, saveSteadyPlan, clearNotice }), [
-    data, steadyPlan, ready, storageAvailable, notice, checkIn, toggleTask, saveJournal, saveSteadyPlan, clearNotice,
+  const value = useMemo(() => ({
+    data,
+    steadyPlan,
+    ready,
+    storageAvailable,
+    notice,
+    checkIn,
+    toggleTask,
+    toggleBasic,
+    saveJournal,
+    saveSteadyPlan,
+    clearAllData,
+    clearNotice,
+  }), [
+    data, steadyPlan, ready, storageAvailable, notice, checkIn, toggleTask, toggleBasic, saveJournal, saveSteadyPlan, clearAllData, clearNotice,
   ]);
 
   return <StateContext.Provider value={value}>{children}</StateContext.Provider>;

@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Action, BrandHeader, Eyebrow, LoadingScreen, Screen, styles } from '../src/ui';
 import { journalFitsStorage, MAX_JOURNAL_BYTES, useAppState, utf8Length } from '../src/state';
 import { colors } from '../src/theme';
 
+const JOURNAL_PROMPTS = [
+  'Right now, I need…',
+  'One thing that felt heavy today was…',
+  'Something I can give myself permission to leave until tomorrow is…',
+  'For the next hour, “enough” looks like…',
+  'What I wish someone understood without me having to explain is…',
+  'One small thing I got through today was…',
+];
+
 export default function JournalScreen() {
   const { data, ready, saveJournal } = useAppState();
   const [entry, setEntry] = useState(data.journal);
+  const [promptIndex, setPromptIndex] = useState(0);
   const [status, setStatus] = useState('Stored in this app on this device only.');
 
   useEffect(() => {
@@ -29,7 +39,18 @@ export default function JournalScreen() {
     }
   }
 
+  function insertPrompt() {
+    const promptText = JOURNAL_PROMPTS[promptIndex % JOURNAL_PROMPTS.length];
+    const nextValue = entry.trim() ? `${entry.trimEnd()}\n\n${promptText} ` : `${promptText} `;
+    if (nextValue.length <= 1500) {
+      setEntry(nextValue);
+      setStatus('Prompt added. Save when you’re ready.');
+    }
+  }
+
   if (!ready) return <LoadingScreen />;
+
+  const currentPrompt = JOURNAL_PROMPTS[promptIndex % JOURNAL_PROMPTS.length];
 
   return (
     <Screen>
@@ -63,7 +84,22 @@ export default function JournalScreen() {
       </View>
       <View style={[styles.card, { backgroundColor: colors.greenSoft }]}>
         <Eyebrow>A SMALL PROMPT</Eyebrow>
-        <Text style={styles.body}>If writing feels like too much, try finishing this sentence in your head: “Right now, I need…”</Text>
+        <Text style={styles.body}>
+          If writing feels like too much, try finishing this sentence:{' '}
+          <Text style={{ fontWeight: '700', color: colors.ink }}>“{currentPrompt}”</Text>
+        </Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 12 }}>
+          <Action variant="outlined" onPress={insertPrompt} style={{ minHeight: 38, paddingHorizontal: 13 }}>
+            Use this prompt →
+          </Action>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setPromptIndex((current) => (current + 1) % JOURNAL_PROMPTS.length)}
+            style={{ paddingVertical: 6, paddingHorizontal: 4 }}
+          >
+            <Text style={{ color: colors.greenDark, fontSize: 13, fontWeight: '700' }}>Another prompt ↻</Text>
+          </Pressable>
+        </View>
       </View>
     </Screen>
   );

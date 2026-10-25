@@ -13,6 +13,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { Link } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from './theme';
 import { useAppState } from './state';
@@ -22,10 +23,13 @@ export const styles = StyleSheet.create({
   keyboardAvoid: { flex: 1 },
   scroll: { flexGrow: 1 },
   content: { width: '100%', maxWidth: 680, alignSelf: 'center', paddingHorizontal: spacing.page, paddingTop: 14, paddingBottom: 38 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 11, marginBottom: 28 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 11, marginBottom: 28 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 11, flexShrink: 1 },
   logo: { width: 42, height: 42 },
   brand: { color: colors.ink, fontSize: 18, fontWeight: '800', letterSpacing: -0.4 },
   tagline: { marginTop: 2, color: colors.muted, fontSize: 12 },
+  headerSupport: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.line, borderRadius: 20, backgroundColor: colors.surface },
+  headerSupportText: { color: colors.greenDark, fontSize: 12, fontWeight: '700' },
   eyebrow: { marginBottom: 8, color: colors.muted, fontSize: 11, fontWeight: '700', letterSpacing: 1.2 },
   title: { marginBottom: 11, color: colors.ink, fontSize: 32, fontWeight: '600', letterSpacing: -0.9, lineHeight: 38 },
   lead: { marginBottom: 22, color: colors.body, fontSize: 15, lineHeight: 23 },
@@ -80,14 +84,23 @@ export function Screen({ children, scroll = true }: { children: React.ReactNode;
   );
 }
 
-export function BrandHeader() {
+export function BrandHeader({ hideSupportLink = false }: { hideSupportLink?: boolean }) {
   return (
     <View style={styles.header}>
-      <Image source={require('../assets/brand-mark.png')} style={styles.logo} resizeMode="contain" />
-      <View>
-        <Text style={styles.brand}>men-tal</Text>
-        <Text style={styles.tagline}>A little steadier, together.</Text>
+      <View style={styles.headerLeft}>
+        <Image source={require('../assets/brand-mark.png')} style={styles.logo} resizeMode="contain" />
+        <View>
+          <Text style={styles.brand}>men-tal</Text>
+          <Text style={styles.tagline}>A little steadier, together.</Text>
+        </View>
       </View>
+      {!hideSupportLink && (
+        <Link href="/support" asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open support resources" style={styles.headerSupport}>
+            <Text style={styles.headerSupportText}>Get support</Text>
+          </Pressable>
+        </Link>
+      )}
     </View>
   );
 }

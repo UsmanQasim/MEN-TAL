@@ -9,12 +9,88 @@ const dateKey = (() => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 })();
+
 const moodMessages = {
   rough: 'Thanks for being honest. You don’t have to carry this alone.',
   low: 'It’s okay to feel low. Let’s keep the next step gentle.',
   okay: 'Getting by is enough for right now. One thing at a time.',
   good: 'Glad there’s a little light today. You deserve the easier moments too.',
 };
+
+const PATHWAYS = {
+  sleep: {
+    tag: 'REST & WIND-DOWN',
+    title: 'Take the pressure off sleeping',
+    ideas: [
+      'Stop trying to force sleep. Resting your body in the dark with your eyes closed still counts.',
+      'Put your phone face-down across the room for 15 minutes and let your shoulders drop.',
+      'Write down the one thing you’re worried about forgetting tomorrow in your journal so your brain doesn’t have to hold it.',
+    ],
+  },
+  money: {
+    tag: 'WORK & MONEY STRAIN',
+    title: 'Shrink the window to just today',
+    ideas: [
+      'You don’t have to solve the whole month tonight. Pick one small admin task—or decide that money tasks wait until tomorrow morning.',
+      'Eat something simple and drink water before looking at bills or messages. Everything feels heavier on an empty stomach.',
+      'If debt or housing is pressing, free confidential advice lines exist in many countries—you don’t have to figure it out in isolation.',
+    ],
+  },
+  lonely: {
+    tag: 'CONNECTION WITHOUT PRESSURE',
+    title: 'Low-effort ways to feel less alone',
+    ideas: [
+      'Send a low-stakes text to one person: “Thinking of you, hope your week is going okay.” No need to explain how you feel unless you want to.',
+      'Step into a shared space for 10 minutes—a local shop, park, or café—just to be around everyday life.',
+      'Check your rough-day plan for the name of someone you trust, and let them know you could use a quick check-in.',
+    ],
+  },
+  energy: {
+    tag: 'LOW ENERGY',
+    title: 'Make the first step tiny',
+    ideas: [
+      'Sit on the edge of the bed or couch and put both feet flat on the floor for 30 seconds. That’s the whole first step.',
+      'Splash cool water on your face or put on a clean shirt—no need for a full routine.',
+      'Open a curtain or crack a window for two minutes of fresh air and daylight.',
+    ],
+  },
+  overwhelm: {
+    tag: 'WHEN EVERYTHING FEELS LIKE A LOT',
+    title: 'Slow down the noise',
+    ideas: [
+      'Try four slow breaths in the Pause tab—longer on the exhale than the inhale.',
+      'Dump the loudest thought into the Journal tab so it’s outside your head.',
+      'Look around the room and name three solid objects you can see right now.',
+    ],
+  },
+};
+
+const GROUNDING_STEPS = [
+  {
+    tag: 'STEP 1 OF 3 · SEE',
+    title: 'Notice one thing you can see',
+    text: 'Look around and pick one ordinary detail—the color of a wall, light on the floor, or an object near you. No need to analyze it.',
+  },
+  {
+    tag: 'STEP 2 OF 3 · FEEL',
+    title: 'Notice one thing you can feel',
+    text: 'Bring your attention to your feet on the ground, your back against the chair, or the fabric of your sleeves under your fingers.',
+  },
+  {
+    tag: 'STEP 3 OF 3 · HEAR',
+    title: 'Listen for one sound nearby',
+    text: 'Notice a sound in the room or outside—a fan, distant traffic, wind, or quiet. Let it be there without needing to change anything.',
+  },
+];
+
+const JOURNAL_PROMPTS = [
+  'Right now, I need…',
+  'One thing that felt heavy today was…',
+  'Something I can give myself permission to leave until tomorrow is…',
+  'For the next hour, “enough” looks like…',
+  'What I wish someone understood without me having to explain is…',
+  'One small thing I got through today was…',
+];
 
 function readStored(key, fallback) {
   try {
@@ -86,20 +162,50 @@ function initializeNavigation() {
   if (page) navigate(page);
 }
 
+function updateCheckinFollowup(mood) {
+  const followup = document.querySelector('#checkin-followup');
+  const tag = document.querySelector('#checkin-followup-tag');
+  const text = document.querySelector('#checkin-followup-text');
+  if (!followup || !tag || !text) return;
+
+  if (mood !== 'rough' && mood !== 'low') {
+    followup.hidden = true;
+    return;
+  }
+
+  const plan = readStored(STORAGE_KEYS.steadyPlan, { signs: '', helpful: '', person: '', message: '' });
+  const helpful = typeof plan?.helpful === 'string' ? plan.helpful.trim() : '';
+  const person = typeof plan?.person === 'string' ? plan.person.trim() : '';
+
+  if (helpful || person) {
+    tag.textContent = 'FROM YOUR ROUGH-DAY PLAN';
+    const parts = [];
+    if (helpful) parts.push(`Next small step: ${helpful}`);
+    if (person) parts.push(`Person you noted: ${person}`);
+    text.textContent = parts.join(' · ');
+  } else {
+    tag.textContent = 'FOR A HEAVY MOMENT';
+    text.textContent = 'Keep the next hour small. You can take a slow breath or jot down a rough-day plan whenever you’re ready.';
+  }
+  followup.hidden = false;
+}
+
 function initializeCheckin() {
   const saved = readStored(STORAGE_KEYS.checkin, null);
   const message = document.querySelector('#checkin-response');
   if (saved?.date === dateKey && moodMessages[saved.mood]) {
-    setMood(saved.mood, false);
+    setMood(saved.mood);
     message.textContent = 'You checked in today. You can change it whenever you like.';
+    updateCheckinFollowup(saved.mood);
   }
 
   document.querySelectorAll('[data-mood]').forEach((button) => {
     button.addEventListener('click', () => {
       const mood = button.dataset.mood;
       if (saveStored(STORAGE_KEYS.checkin, { date: dateKey, mood })) {
-        setMood(mood, false);
+        setMood(mood);
         message.textContent = moodMessages[mood];
+        updateCheckinFollowup(mood);
       }
     });
   });
@@ -111,24 +217,98 @@ function setMood(mood) {
   });
 }
 
+function initializePathways() {
+  const pills = [...document.querySelectorAll('[data-pathway]')];
+  const detail = document.querySelector('#pathway-detail');
+  const tag = document.querySelector('#pathway-tag');
+  const title = document.querySelector('#pathway-title');
+  const idea = document.querySelector('#pathway-idea');
+  const nextBtn = document.querySelector('#pathway-next');
+  const closeBtn = document.querySelector('#pathway-close');
+  let activeKey = null;
+  let ideaIndex = 0;
+
+  function render() {
+    pills.forEach((pill) => {
+      const selected = pill.dataset.pathway === activeKey;
+      pill.classList.toggle('is-active', selected);
+      pill.setAttribute('aria-pressed', String(selected));
+    });
+    if (!activeKey || !PATHWAYS[activeKey]) {
+      detail.hidden = true;
+      return;
+    }
+    const item = PATHWAYS[activeKey];
+    tag.textContent = item.tag;
+    title.textContent = item.title;
+    idea.textContent = item.ideas[ideaIndex % item.ideas.length];
+    detail.hidden = false;
+  }
+
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const key = pill.dataset.pathway;
+      if (activeKey === key) {
+        activeKey = null;
+      } else {
+        activeKey = key;
+        ideaIndex = 0;
+      }
+      render();
+    });
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    if (!activeKey || !PATHWAYS[activeKey]) return;
+    ideaIndex = (ideaIndex + 1) % PATHWAYS[activeKey].ideas.length;
+    render();
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    activeKey = null;
+    render();
+  });
+}
+
 function initializeDailyPlan() {
   const saved = readStored(STORAGE_KEYS.daily, {});
-  const today = saved.date === dateKey ? saved.tasks : {};
+  const isToday = saved.date === dateKey;
+  const todayTasks = isToday && saved.tasks ? saved.tasks : {};
+  const todayBasics = isToday && saved.basics ? saved.basics : {};
+
+  function persistDaily() {
+    const tasks = Object.fromEntries(
+      [...document.querySelectorAll('[data-daily]')].map((item) => [item.dataset.daily, item.checked]),
+    );
+    const basics = Object.fromEntries(
+      [...document.querySelectorAll('[data-task]')].map((button) => [button.dataset.task, button.classList.contains('is-done')]),
+    );
+    return saveStored(STORAGE_KEYS.daily, { date: dateKey, tasks, basics });
+  }
 
   document.querySelectorAll('[data-daily]').forEach((checkbox) => {
-    checkbox.checked = Boolean(today[checkbox.dataset.daily]);
+    checkbox.checked = Boolean(todayTasks[checkbox.dataset.daily]);
     checkbox.addEventListener('change', () => {
-      const tasks = Object.fromEntries([...document.querySelectorAll('[data-daily]')].map((item) => [item.dataset.daily, item.checked]));
-      if (saveStored(STORAGE_KEYS.daily, { date: dateKey, tasks })) updateDailyCount();
+      if (persistDaily()) updateDailyCount();
     });
   });
   updateDailyCount();
 
   document.querySelectorAll('[data-task]').forEach((button) => {
-    button.addEventListener('click', () => {
+    const done = Boolean(todayBasics[button.dataset.task]);
+    if (done) {
       button.classList.add('is-done');
+      button.setAttribute('aria-pressed', 'true');
       button.textContent = 'Done for now ✓';
-      showToast('That counts. Take a moment to give yourself credit.');
+    }
+    button.addEventListener('click', () => {
+      const nextDone = !button.classList.contains('is-done');
+      button.classList.toggle('is-done', nextDone);
+      button.setAttribute('aria-pressed', String(nextDone));
+      button.innerHTML = nextDone ? 'Done for now ✓' : 'I did this <span aria-hidden="true">→</span>';
+      if (persistDaily() && nextDone) {
+        showToast('That counts. Take a moment to give yourself credit.');
+      }
     });
   });
 }
@@ -142,7 +322,18 @@ function updateDailyCount() {
 function initializeJournal() {
   const entry = document.querySelector('#journal-entry');
   const status = document.querySelector('#journal-status');
+  const counter = document.querySelector('#journal-counter');
+  const promptText = document.querySelector('#journal-prompt-text');
+  const usePromptBtn = document.querySelector('#use-journal-prompt');
+  const nextPromptBtn = document.querySelector('#next-journal-prompt');
+  let promptIndex = 0;
+
+  function updateCounter() {
+    if (counter) counter.textContent = `${entry.value.length}/3000`;
+  }
+
   entry.value = readStored(STORAGE_KEYS.journal, '');
+  updateCounter();
 
   document.querySelector('#save-journal').addEventListener('click', () => {
     if (saveStored(STORAGE_KEYS.journal, entry.value)) {
@@ -152,13 +343,31 @@ function initializeJournal() {
   });
   document.querySelector('#clear-journal').addEventListener('click', () => {
     entry.value = '';
+    updateCounter();
     if (saveStored(STORAGE_KEYS.journal, '')) {
       status.textContent = 'Your note has been cleared from this device.';
       showToast('Your note has been cleared.');
     }
   });
   entry.addEventListener('input', () => {
+    updateCounter();
     status.textContent = 'Local to this browser. Remember to save if you want to keep it.';
+  });
+
+  nextPromptBtn?.addEventListener('click', () => {
+    promptIndex = (promptIndex + 1) % JOURNAL_PROMPTS.length;
+    if (promptText) promptText.textContent = `“${JOURNAL_PROMPTS[promptIndex]}”`;
+  });
+
+  usePromptBtn?.addEventListener('click', () => {
+    const starter = JOURNAL_PROMPTS[promptIndex % JOURNAL_PROMPTS.length];
+    const nextValue = entry.value.trim() ? `${entry.value.trimEnd()}\n\n${starter} ` : `${starter} `;
+    if (nextValue.length <= 3000) {
+      entry.value = nextValue;
+      updateCounter();
+      entry.focus();
+      status.textContent = 'Prompt added. Save when you’re ready.';
+    }
   });
 }
 
@@ -167,6 +376,7 @@ function initializeSteadyPlan() {
   const plan = readStored(STORAGE_KEYS.steadyPlan, { signs: '', helpful: '', person: '', message: '' });
   const valid = plan && fields.every((field) => typeof plan[field] === 'string' && plan[field].length <= 100);
   const status = document.querySelector('#steady-plan-status');
+  const copyBtn = document.querySelector('#copy-steady-message');
   const inputs = Object.fromEntries(fields.map((field) => [field, document.querySelector(`#steady-${field}`)]));
 
   function updateCounters() {
@@ -176,6 +386,9 @@ function initializeSteadyPlan() {
         counter.textContent = `${inputs[field].value.length}/100`;
       }
     });
+    if (copyBtn && inputs.message) {
+      copyBtn.hidden = !inputs.message.value.trim();
+    }
   }
 
   if (valid) {
@@ -186,11 +399,36 @@ function initializeSteadyPlan() {
   }
   updateCounters();
 
+  document.querySelectorAll('[data-starter-message]').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const starter = chip.dataset.starterMessage || '';
+      inputs.message.value = starter.slice(0, 100);
+      updateCounters();
+      status.textContent = 'Starter added. Edit it however you like and save when ready.';
+    });
+  });
+
+  copyBtn?.addEventListener('click', async () => {
+    const text = inputs.message.value.trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = 'Message copied. Paste it into a text or chat whenever you’re ready.';
+      showToast('Message copied to clipboard.');
+    } catch (error) {
+      console.error('Could not copy rough-day message.', error);
+      inputs.message.select();
+      showToast('Select and copy the message text above.');
+    }
+  });
+
   document.querySelector('#save-steady-plan').addEventListener('click', () => {
     const nextPlan = Object.fromEntries(fields.map((field) => [field, inputs[field].value]));
     if (saveStored(STORAGE_KEYS.steadyPlan, nextPlan)) {
       status.textContent = 'Your plan is saved in this browser only. It is not uploaded.';
       showToast('Your rough-day plan is saved on this device.');
+      const savedMood = readStored(STORAGE_KEYS.checkin, null);
+      if (savedMood?.date === dateKey) updateCheckinFollowup(savedMood.mood);
     }
   });
   document.querySelector('#clear-steady-plan').addEventListener('click', () => {
@@ -200,6 +438,8 @@ function initializeSteadyPlan() {
       updateCounters();
       status.textContent = 'Your plan has been cleared from this browser.';
       showToast('Your plan has been cleared.');
+      const savedMood = readStored(STORAGE_KEYS.checkin, null);
+      if (savedMood?.date === dateKey) updateCheckinFollowup(savedMood.mood);
     }
   });
   fields.forEach((field) => {
@@ -217,31 +457,61 @@ function initializeBreathing() {
   const instruction = document.querySelector('#breath-instruction');
   const count = document.querySelector('#breath-count');
   const caption = document.querySelector('#breathing-caption');
-  const phases = [
-    { label: 'Breathe in', duration: 4, className: 'is-inhale' },
-    { label: 'Breathe out', duration: 6, className: 'is-exhale' },
-  ];
+  const patternBtns = [...document.querySelectorAll('[data-breath-pattern]')];
+
+  const patterns = {
+    gentle: {
+      subtitle: '4s in · 6s out',
+      phases: [
+        { label: 'Breathe in', duration: 4, className: 'is-inhale' },
+        { label: 'Breathe out', duration: 6, className: 'is-exhale' },
+      ],
+    },
+    steady: {
+      subtitle: '4s in · 4s hold · 4s out',
+      phases: [
+        { label: 'Breathe in', duration: 4, className: 'is-inhale' },
+        { label: 'Hold gently', duration: 4, className: 'is-inhale' },
+        { label: 'Breathe out', duration: 4, className: 'is-exhale' },
+      ],
+    },
+  };
+
+  let activePattern = 'gentle';
   let timer;
   let elapsed = 0;
   let phaseIndex = 0;
-  let remaining = phases[0].duration;
+  let remaining = patterns[activePattern].phases[0].duration;
 
   function stopBreathing(finished = false) {
     clearInterval(timer);
     timer = null;
     visual.classList.remove('is-inhale', 'is-exhale');
     instruction.textContent = finished ? 'Well done.' : 'Ready?';
-    count.textContent = finished ? 'A minute just for you' : 'Breathe at your own pace';
+    count.textContent = finished ? 'A minute just for you' : patterns[activePattern].subtitle;
     caption.textContent = finished ? 'Take this feeling with you, or stay here a little longer.' : 'Find a comfortable position. You can stop at any time.';
     button.textContent = 'Begin a gentle minute';
     skip.textContent = 'I’d rather try something else';
   }
+
+  patternBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      activePattern = btn.dataset.breathPattern || 'gentle';
+      patternBtns.forEach((item) => {
+        const active = item === btn;
+        item.classList.toggle('is-active', active);
+        item.setAttribute('aria-pressed', String(active));
+      });
+      stopBreathing(false);
+    });
+  });
 
   button.addEventListener('click', () => {
     if (timer) {
       stopBreathing();
       return;
     }
+    const phases = patterns[activePattern].phases;
     elapsed = 0;
     phaseIndex = 0;
     remaining = phases[phaseIndex].duration;
@@ -254,7 +524,7 @@ function initializeBreathing() {
       visual.classList.add(phase.className);
       instruction.textContent = phase.label;
       count.textContent = `${remaining} seconds`;
-      caption.textContent = 'No need to force your breath. Keep it comfortable.';
+      caption.textContent = `No need to force your breath. (${Math.max(0, 60 - elapsed)}s left — stop anytime)`;
       elapsed += 1;
       remaining -= 1;
 
@@ -274,6 +544,53 @@ function initializeBreathing() {
       document.querySelector('.grounding-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
       document.querySelector('.grounding-card h2').focus({ preventScroll: true });
     }
+  });
+}
+
+function initializeGrounding() {
+  const startBtn = document.querySelector('#grounding-start');
+  const box = document.querySelector('#grounding-step-box');
+  const tag = document.querySelector('#grounding-step-tag');
+  const title = document.querySelector('#grounding-step-title');
+  const text = document.querySelector('#grounding-step-text');
+  const nextBtn = document.querySelector('#grounding-next');
+  const closeBtn = document.querySelector('#grounding-close');
+  let stepIndex = 0;
+
+  function renderStep() {
+    if (stepIndex >= GROUNDING_STEPS.length) {
+      tag.textContent = 'GROUNDED IN THIS MOMENT';
+      title.textContent = 'Take your time from here.';
+      text.textContent = 'You paused and noticed where you are. That’s enough for right now.';
+      nextBtn.textContent = 'Start again';
+      return;
+    }
+    const step = GROUNDING_STEPS[stepIndex];
+    tag.textContent = step.tag;
+    title.textContent = step.title;
+    text.textContent = step.text;
+    nextBtn.textContent = stepIndex === GROUNDING_STEPS.length - 1 ? 'Finish check-in ✓' : 'Next step →';
+  }
+
+  startBtn?.addEventListener('click', () => {
+    stepIndex = 0;
+    startBtn.hidden = true;
+    box.hidden = false;
+    renderStep();
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    if (stepIndex >= GROUNDING_STEPS.length) {
+      stepIndex = 0;
+    } else {
+      stepIndex += 1;
+    }
+    renderStep();
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    box.hidden = true;
+    startBtn.hidden = false;
   });
 }
 
@@ -346,6 +663,68 @@ function initializeContributions() {
   destination.textContent = 'No payment page is connected yet, so this app currently collects no donations. Create a creator account and add its public HTTPS page in site-config.js; until then, no money goes anywhere.';
 }
 
+function initializeDataErase() {
+  const eraseBtn = document.querySelector('#erase-all-data');
+  const cancelBtn = document.querySelector('#cancel-erase-data');
+  const status = document.querySelector('#erase-data-status');
+  let confirming = false;
+
+  eraseBtn?.addEventListener('click', () => {
+    if (!confirming) {
+      confirming = true;
+      eraseBtn.textContent = 'Confirm erase all data';
+      if (cancelBtn) cancelBtn.hidden = false;
+      if (status) {
+        status.textContent = 'Click “Confirm erase all data” to remove your check-in, daily tasks, journal note, and rough-day plan from this browser.';
+      }
+      return;
+    }
+
+    try {
+      Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+      confirming = false;
+      eraseBtn.textContent = 'Erase all saved data';
+      if (cancelBtn) cancelBtn.hidden = true;
+      setMood('');
+      document.querySelector('#checkin-response').textContent = '';
+      updateCheckinFollowup('');
+      document.querySelectorAll('[data-daily]').forEach((box) => { box.checked = false; });
+      updateDailyCount();
+      document.querySelectorAll('[data-task]').forEach((btn) => {
+        btn.classList.remove('is-done');
+        btn.setAttribute('aria-pressed', 'false');
+        btn.innerHTML = 'I did this <span aria-hidden="true">→</span>';
+      });
+      const journalEntry = document.querySelector('#journal-entry');
+      if (journalEntry) journalEntry.value = '';
+      const journalCounter = document.querySelector('#journal-counter');
+      if (journalCounter) journalCounter.textContent = '0/3000';
+      ['signs', 'helpful', 'person', 'message'].forEach((field) => {
+        const input = document.querySelector(`#steady-${field}`);
+        if (input) input.value = '';
+        const counter = document.querySelector(`[data-counter-for="steady-${field}"]`);
+        if (counter) counter.textContent = '0/100';
+      });
+      const copyBtn = document.querySelector('#copy-steady-message');
+      if (copyBtn) copyBtn.hidden = true;
+      if (status) status.textContent = 'All saved MEN-TAL entries have been erased from this browser.';
+      showToast('All saved entries have been cleared from this browser.');
+    } catch (error) {
+      console.error('Could not erase saved data from localStorage.', error);
+      showToast('Could not erase browser storage right now.');
+    }
+  });
+
+  cancelBtn?.addEventListener('click', () => {
+    confirming = false;
+    eraseBtn.textContent = 'Erase all saved data';
+    cancelBtn.hidden = true;
+    if (status) {
+      status.textContent = 'Your check-ins, daily tasks, journal note, and rough-day plan are stored locally in this browser. You can erase all saved entries whenever you like.';
+    }
+  });
+}
+
 let installPrompt = null;
 
 function initializeInstallation() {
@@ -391,12 +770,15 @@ function initializeInstallation() {
 updateDate();
 initializeNavigation();
 initializeCheckin();
+initializePathways();
 initializeDailyPlan();
 initializeJournal();
 initializeSteadyPlan();
 initializeBreathing();
+initializeGrounding();
 initializeLocationSupport();
 initializeContributions();
+initializeDataErase();
 initializeInstallation();
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
