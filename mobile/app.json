@@ -40,6 +40,17 @@
           "configureAndroidBackup": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "99801f4e-66fc-4959-bb99-d43fe0c37745"
+      }
+    },
+    "owner": "usmanq"
   }
 }
